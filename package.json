@@ -1,6 +1,6 @@
 {
   "name": "@selfage/message",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Generated message descriptor to assist runtime processing.",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
     "Message",
     "Protobuf",
     "Descriptor",
-    "Generator"
+    "Generator",
+    "Metaprogramming"
   ],
   "author": "Yuxuan Xie <teststaybaka@gmail.com> (http://www.yuxuanxie.com)",
   "license": "GPL-3.0-or-later",

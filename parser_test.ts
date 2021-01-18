@@ -1,6 +1,6 @@
 import { EnumDescriptor, MessageDescriptor, PrimitiveType } from "./descriptor";
+import { parseEnum, parseMessage } from "./parser";
 import { eqMessage } from "./test_matcher";
-import { parseEnum, parseMessage } from "./util";
 import { ObservableArray } from "@selfage/observable_array";
 import { assertThat, eq } from "@selfage/test_base/matcher";
 import { TEST_RUNNER } from "@selfage/test_base/runner";
