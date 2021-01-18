@@ -152,3 +152,16 @@ let blue = parseEnum(raw, COLOR); // of type Color.
 let raw2 = 'RED' as any;
 let red = parseEnum(raw2, COLOR); // of type Color.
 ```
+
+## Test matcher
+
+Provides an implementation of test matcher to be used with `@selfage/test_base`.
+
+```TypeScript
+import { BasicData, BASIC_DATA } from './basic'; // As generated from the example above.
+import { eqMessage } from '@selfage/message/test_matcher';
+import { assertThat } from '@selfage/test_base/matcher'; // Install @selfage/test_base
+
+let basicData: BasicData = { numberField: 111 };
+assertThat(basicData, eqMessage({ numberField: 111 }, BASIC_DATA), `basicData`);
+```
