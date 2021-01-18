@@ -1,0 +1,28 @@
+{
+  "name": "@selfage/message",
+  "version": "0.0.1",
+  "description": "Generated message descriptor to assist runtime processing.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/selfage/message.git"
+  },
+  "keywords": [
+    "Message",
+    "Protobuf",
+    "Descriptor",
+    "Generator"
+  ],
+  "author": "Yuxuan Xie <teststaybaka@gmail.com> (http://www.yuxuanxie.com)",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/selfage/message/issues"
+  },
+  "homepage": "https://github.com/selfage/message#readme",
+  "devDependencies": {
+    "@selfage/test_base": "^1.0.6",
+    "@selfage/tsconfig": "^1.0.3"
+  },
+  "dependencies": {
+    "@selfage/observable_array": "^1.0.5"
+  }
+}
