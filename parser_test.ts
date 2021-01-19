@@ -283,7 +283,12 @@ TEST_RUNNER.run({
                 preferredColor: 1,
                 colorHistory: [undefined, 1, 2, 10],
               },
-              creditCards: [{}, undefined, {}, { cardNumber: 3030 }],
+              creditCards: ObservableArray.of(
+                {},
+                undefined,
+                {},
+                { cardNumber: 3030 }
+              ),
             },
             NESTED_USER
           ),
@@ -295,14 +300,15 @@ TEST_RUNNER.run({
       name: "ParseMessageNestedOverride",
       execute: () => {
         // Prepare
-        let creditCards = new ObservableArray<any>();
-        creditCards.push({ cardNumber: 1010 }, { cardNumber: 3030 });
         let original: any = {
           userInfo: {
             backgroundColor: "BLUE",
             colorHistory: ["BLUE"],
           },
-          creditCards: creditCards,
+          creditCards: ObservableArray.of(
+            { cardNumber: 1010 },
+            { cardNumber: 3030 }
+          ),
         };
 
         // Execute
@@ -333,11 +339,11 @@ TEST_RUNNER.run({
                 preferredColor: 1,
                 colorHistory: [1, 2],
               },
-              creditCards: [
+              creditCards: ObservableArray.of(
                 { cardNumber: 2020 },
                 { cardNumber: 4040 },
                 { cardNumber: 5050 },
-              ],
+              ),
             },
             NESTED_USER
           ),

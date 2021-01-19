@@ -14,38 +14,43 @@ export function eqMessage<T>(
     let expectedAny = expected as any;
     let actualAny = actual as any;
     for (let field of descriptor.fields) {
-      let eqField: MatchFn<any>;
+      let fieldMatcher: MatchFn<any>;
       if (field.primitiveType || field.enumDescriptor) {
         if (field.arrayFactoryFn || field.observableArrayFactoryFn) {
-          let eqElementArray: Array<MatchFn<any>>;
+          let eqElements: Array<MatchFn<any>>;
           if (expectedAny[field.name] !== undefined) {
-            eqElementArray = expectedAny[field.name].map((element: any) =>
-              eq(element)
-            );
+            eqElements = new Array<MatchFn<any>>();
+            for (let element of expectedAny[field.name]) {
+              eqElements.push(eq(element));
+            }
           }
           if (field.arrayFactoryFn) {
-            eqField = eqArray(eqElementArray);
+            fieldMatcher = eqArray(eqElements);
           } else {
-            eqField = eqObservableArray(eqElementArray);
+            fieldMatcher = eqObservableArray(eqElements);
           }
         } else {
-          eqField = eq(expectedAny[field.name]);
+          fieldMatcher = eq(expectedAny[field.name]);
         }
       } else if (field.messageDescriptor) {
         if (field.arrayFactoryFn || field.observableArrayFactoryFn) {
-          let eqElementArray: Array<MatchFn<any>>;
+          let eqElements: Array<MatchFn<any>>;
           if (expectedAny[field.name] !== undefined) {
-            eqElementArray = expectedAny[field.name].map((element: any) =>
-              eqMessage(element, field.messageDescriptor)
-            );
+            eqElements = new Array<MatchFn<any>>();
+            for (let element of expectedAny[field.name]) {
+              eqElements.push(eqMessage(element, field.messageDescriptor));
+            }
           }
           if (field.arrayFactoryFn) {
-            eqField = eqArray(eqElementArray);
+            fieldMatcher = eqArray(eqElements);
           } else {
-            eqField = eqObservableArray(eqElementArray);
+            fieldMatcher = eqObservableArray(eqElements);
           }
         } else {
-          eqField = eqMessage(expectedAny[field.name], field.messageDescriptor);
+          fieldMatcher = eqMessage(
+            expectedAny[field.name],
+            field.messageDescriptor
+          );
         }
       } else {
         throw new Error(
@@ -53,7 +58,7 @@ export function eqMessage<T>(
             `is ${JSON.stringify(field)}`
         );
       }
-      assertThat(actualAny[field.name], eqField, `${field.name} field`);
+      assertThat(actualAny[field.name], fieldMatcher, `${field.name} field`);
     }
   };
 }
