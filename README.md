@@ -35,9 +35,9 @@ By using `@selfage/cli`, it requires a JSON file as input, e.g. `basic.json`, to
 }]
 ```
 
-It's just like a TypeScript interface but a little bit verbose when written in JSON. The schema of the JSON file is an array of [Definition](https://github.com/selfage/cli/blob/7e4116eb6d07597736458f07ba871ad6ab940eec/generate/definition.ts#L55).
+It's just like a TypeScript interface but a little bit verbose when written in JSON. The schema of the JSON file is an array of [Definition](https://github.com/selfage/cli/blob/5db1a453bccf6e12f6bc7f96c708833c07188d12/generate/definition.ts#L57).
 
-After running `$ selfage/cli gen basic`, you will get a `basic.ts` file, which looks like the follwing.
+After running `$ selfage gen basic`, you will get a `basic.ts` file, which looks like the follwing.
 
 ```TypeScript
 import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
@@ -68,7 +68,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
 };
 ```
 
-It's recommended to commit `basic.ts` as a source file such that any code change on `@selfage/cli` will not break your program. `basic.ts` can be imported as any other source file. `BasicData` is a regular TypeScript interface. `BASIC_DATA` is a singleton instance of `MessageDescriptor` that can be passed around.
+It's recommended to commit `basic.ts` as a source file such that any code change on `@selfage/cli` will not break your program.
 
 ## Parse messages at runtime
 
@@ -153,9 +153,148 @@ let raw2 = 'RED' as any;
 let red = parseEnum(raw2, COLOR); // of type Color.
 ```
 
+## Generate observable message
+
+`@selfage/cli` can also generate observable messages which expose listeners on changes happen on each property/member/field, by specifying `isObservable: true`. Taken the example `basic.json` above and modified as the following.
+
+```JSON
+[{
+  "message": {
+    "name": "BasicData",
+    "fields": [{
+      "name": "numberField",
+      "type": "number"
+    }, {
+      "name": "stringArrayField",
+      "type": "string",
+      "isArray": true
+    }],
+    "isObservable": true
+  }
+}]
+```
+
+After running `$ selfage gen basic`, you will get a `basic.ts` file, which looks like the follwing.
+
+```TypeScript
+export class BasicData {
+  public onNumberFieldChange: (newValue: number, oldValue: number) => void;
+  private numberField_?: number;
+  get numberField(): number {
+    return this.numberField_;
+  }
+  set numberField(value: number) {
+    let oldValue = this.numberField_;
+    if (value === oldValue) {
+      return;
+    }
+    this.numberField_ = value;
+    if (this.onNumberFieldChange) {
+      this.onNumberFieldChange(this.numberField_, oldValue);
+    }
+  }
+
+  public onStringArrayFieldChange: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void;
+  private stringArrayField_?: ObservableArray<string>;
+  get stringArrayField(): ObservableArray<string> {
+    return this.stringArrayField_;
+  }
+  set stringArrayField(value: ObservableArray<string>) {
+    let oldValue = this.stringArrayField_;
+    if (value === oldValue) {
+      return;
+    }
+    this.stringArrayField_ = value;
+    if (this.onStringArrayFieldChange) {
+      this.onStringArrayFieldChange(this.stringArrayField_, oldValue);
+    }
+  }
+  
+  public toJSON(): Object {
+    return {
+      numberField: this.numberField;
+      stringArrayField: this.stringArrayField;
+    };
+  }
+}
+
+export let BASIC_DATA: MessageDescriptor<BasicData> = {
+  name: 'BasicData',
+  factoryFn: () => {
+    return new BasicData();
+  },
+  fields: [
+    {
+      name: 'numberField',
+      primitiveType: PrimitiveType.NUMBER,
+    },
+    {
+      name: 'stringArrayField',
+      primitiveType: PrimitiveType.STRING,
+      observableArrayFactoryFn: () => {
+        return new ObservableArray<any>();
+      },
+    },
+  ]
+};
+```
+
+It's recommended to commit `basic.ts` as a source file such that any code change on `@selfage/cli` will not break your program. Note that you will need to install `@selfage/observable_array` if your observable message contains arrays.
+
+## Listen on observable message
+
+Changes are detected through TypeScript setter. Listeners can be added as the following.
+
+```TypeScript
+import { BasicData } from './basic';
+import { ObservableArray } from '@selfage/observable_array'; // Install @selfage/observable_array
+
+let basicData = new BasicData();
+basicData.onNumberFieldChange = (newValue, oldValue) => {
+  console.log(`newValue: ${newValue}; oldValue: ${oldValue};`);
+}
+basicData.numberField = 10;
+// Print: newValue: 10; oldValue: undefined;
+basicData.numberField = 100;
+// Print: newValue: 100; oldValue: 10;
+delete basicData.numberField;
+// Actually does nothing. basicData.numberField is still 100.
+basicData.numberField = undefined;
+// Print: newValue: undefined; oldValue: 100;
+
+basicData.onStringArrayFieldChange = (newValue, oldValue) => {
+  console.log(`newValue: ${JSON.stringify(newValue)}; oldValue: ${JSON.stringify(oldValue)};`);
+}
+basicData.stringArrayField = ObservableArray.of('str1', 'str2');
+// Print: newValue: ['str1','str2']; oldValue: undefined;
+basicData.stringArrayField = ObservableArray.of('str1', 'str2');
+// Print: newValue: ['str1','str2']; oldValue: ['str1','str2'];
+// This is because the new and old ObservableArray's are not the instance. I.e., they are not equal by `===`.
+basicData.stringArrayField.push('str3');
+// Nothing to print as changes are not bubbled up.
+```
+
+In order to observe arrays, please add a listener on `basicData.stringArrayField` directly. Refer to package `@selfage/observable_array` for explanation.
+
+Changes on `BasicData` are not bubbled up either, even if you nest `BasicData` inside another observable message. Always add listeners on nested observable messages directly.
+
+## Parse observable messages at runtime
+
+Not only we have generated an observable message but also a `MessageDescriptor` in the example above. With that, you can parse a JSON-parsed object into an observable message the same way as a non-observable message.
+
+```TypeScript
+import { parseMessage } from '@selfage/message/parser';
+import { BASIC_DATA, BasicData } from './basic'; // As generated from the example above.
+
+let raw = JSON.parse(`{ "numberField": 111, "otherField": "random", "stringArrayField": ["str1", "str2"] }`);
+let output = new BasicData();
+// Providing an output argument might be preferred because you can add listeners here before parsing input.
+parseMessage(raw, BASIC_DATA, output);
+```
+
 ## Test matcher
 
-Provides an implementation of test matcher to be used with `@selfage/test_base`.
+Provides an implementation of test matcher taking a `MessageDescriptor` to be used with `@selfage/test_base`.
 
 ```TypeScript
 import { BasicData, BASIC_DATA } from './basic'; // As generated from the example above.
