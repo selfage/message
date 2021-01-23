@@ -294,12 +294,12 @@ parseMessage(raw, BASIC_DATA, output);
 
 ## Test matcher
 
-Provides an implementation of test matcher taking a `MessageDescriptor` to be used with `@selfage/test_base`.
+Provides an implementation of test matcher taking a `MessageDescriptor` to be used with `@selfage/test_matcher`.
 
 ```TypeScript
 import { BasicData, BASIC_DATA } from './basic'; // As generated from the example above.
 import { eqMessage } from '@selfage/message/test_matcher';
-import { assertThat } from '@selfage/test_base/matcher'; // Install @selfage/test_base
+import { assertThat } from '@selfage/test_matcher'; // Install @selfage/test_matcher
 
 let basicData: BasicData = { numberField: 111 };
 assertThat(basicData, eqMessage({ numberField: 111 }, BASIC_DATA), `basicData`);

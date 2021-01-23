@@ -1,6 +1,6 @@
 {
   "name": "@selfage/message",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Generated message descriptor to assist runtime processing.",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     "@selfage/tsconfig": "^1.0.3"
   },
   "dependencies": {
-    "@selfage/observable_array": "^1.0.7",
+    "@selfage/observable_array": "^1.0.8",
     "@selfage/test_matcher": "^1.0.2"
   }
 }
