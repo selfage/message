@@ -1,6 +1,6 @@
 import { MessageDescriptor } from "./descriptor";
 import { eqObservableArray } from "@selfage/observable_array/test_matcher";
-import { MatchFn, assertThat, eq, eqArray } from "@selfage/test_base/matcher";
+import { MatchFn, assertThat, eq, eqArray } from "@selfage/test_matcher";
 
 export function eqMessage<T>(
   expected: T | undefined,

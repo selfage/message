@@ -2,8 +2,8 @@ import { EnumDescriptor, MessageDescriptor, PrimitiveType } from "./descriptor";
 import { parseEnum, parseMessage } from "./parser";
 import { eqMessage } from "./test_matcher";
 import { ObservableArray } from "@selfage/observable_array";
-import { assertThat, eq } from "@selfage/test_base/matcher";
-import { TEST_RUNNER } from "@selfage/test_base/runner";
+import { assertThat, eq } from "@selfage/test_matcher";
+import { TEST_RUNNER } from "@selfage/test_runner";
 
 let USER: MessageDescriptor<any> = {
   name: "User",
@@ -342,7 +342,7 @@ TEST_RUNNER.run({
               creditCards: ObservableArray.of(
                 { cardNumber: 2020 },
                 { cardNumber: 4040 },
-                { cardNumber: 5050 },
+                { cardNumber: 5050 }
               ),
             },
             NESTED_USER
