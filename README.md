@@ -35,7 +35,7 @@ By using `@selfage/cli`, it requires a JSON file as input, e.g. `basic.json`, to
 }]
 ```
 
-It's just like a TypeScript interface but a little bit verbose when written in JSON. The schema of the JSON file is an array of [Definition](https://github.com/selfage/cli/blob/5db1a453bccf6e12f6bc7f96c708833c07188d12/generate/definition.ts#L57).
+It's just like a TypeScript interface but a little bit verbose when written in JSON. The schema of the JSON file is an array of [Definition](https://github.com/selfage/cli/blob/14a9f6e40a11e2cac88fb67d4b18e93c8e286061/generate/definition.ts#L59).
 
 After running `$ selfage gen basic`, you will get a `basic.ts` file, which looks like the follwing.
 
