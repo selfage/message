@@ -21,6 +21,7 @@
     "url": "https://github.com/selfage/message/issues"
   },
   "homepage": "https://github.com/selfage/message#readme",
+  "files": ["*.d.ts", "*.js", "!*_test.*"],
   "devDependencies": {
     "@selfage/test_runner": "^1.0.4",
     "@selfage/tsconfig": "^1.0.3",
