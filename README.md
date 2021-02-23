@@ -328,3 +328,5 @@ As for why we didn't allow bubbling up changes, it's because:
 1. It introduces lots of if-statements to check whether a callback function is provided.
 2. Our main use case is to observe changes on states to trigger UI changes, where each component can own its own observable message/object. Nested messages/objects should be observed by nested components.
 3. If you want to push new states into browser history, you probably don't want to push upon every single change, because an operation might trigger multiple changes which should be grouped into one history entry.
+
+Exactly because of the same use case in mind, we only allow assigning one listener function to each property.
