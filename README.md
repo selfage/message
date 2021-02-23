@@ -306,7 +306,7 @@ let basicData: BasicData = { numberField: 111 };
 assertThat(basicData, eqMessage({ numberField: 111 }, BASIC_DATA), `basicData`);
 ```
 
-## Design considerations
+## Design considerations for message
 
 We didn't invent a new language/syntax as what Google's Protocol Buffers did, because:
 
@@ -318,3 +318,13 @@ The downside with using JSON is obviously that it's verbose to type `{}` `[]` `"
 However, data size/compression has nothing to do with this approach. Because you can compress JSON strings easily with many popular tools.
 
 We might even introduce an index number to each field of `message`, if data size is really a concern.
+
+## Design considerations for observable message
+
+We have also provided `@selfage/observable_js` in pure JavaScript to convert any objects into observable objects via ES6 proxy. The main reason we didn't do the same thing in TypeScript is that we failed to find a way to make the converted observable objects type-safe. I.e., what would be the return type for function `toObservable<T>(message: T): ?` requring `on<field name>Change()` to be added to `T` and can be type checked by TypeScript?
+
+As for why we didn't allow bubbling up changes, it's because:
+
+1. It introduces lots of if-statements to check whether a callback function is provided.
+2. Our main use case is to observe changes on states to trigger UI changes, where each component can own its own observable message/object. Nested messages/objects should be observed by nested components.
+3. If you want to push new states into browser history, you probably don't want to push upon every single change, because an operation might trigger multiple changes which should be grouped into one history entry.
