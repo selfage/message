@@ -3,7 +3,7 @@ import { parseEnum, parseMessage } from "./parser";
 import { eqMessage } from "./test_matcher";
 import { ObservableArray } from "@selfage/observable_array";
 import { assertThat, eq } from "@selfage/test_matcher";
-import { TEST_RUNNER } from "@selfage/test_runner";
+import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
 let USER: MessageDescriptor<any> = {
   name: "User",
@@ -130,7 +130,7 @@ function testParseEnum(input: string | number, expected: number) {
   assertThat(parsed, eq(expected), "parsed");
 }
 
-TEST_RUNNER.run({
+NODE_TEST_RUNNER.run({
   name: "MessageUtilTest",
   cases: [
     {
