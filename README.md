@@ -94,6 +94,8 @@ let output: BasicData = {};
 parseMessage(raw, BASIC_DATA, output);
 ```
 
+Note that if will overwrite everything in `output`, if it's not empty.
+
 ## Generate EnumDescriptor
 
 TypeScript preserves enum information at runtime. Therefore, `EnumDescriptor` only exists for `MessageDescriptor` to reference.
@@ -178,8 +180,17 @@ let red = parseEnum(raw2, COLOR); // of type Color.
 After running `$ selfage gen basic`, you will get a `basic.ts` file, which looks like the follwing.
 
 ```TypeScript
-export class BasicData {
-  public onNumberFieldChange: (newValue: number, oldValue: number) => void;
+import { ObservableArray } from '@selfage/observable_array';
+import { EventEmitter } from 'events';
+import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+
+export interface BasicData {
+  on(event: 'numberField', listener: (newValue: number, oldValue: number) => void): this;
+  on(event: 'stringArrayField', listener: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void): this;
+  on(event: string, listener: Function): this;
+}
+
+export class BasicData extends EventEmitter {
   private numberField_?: number;
   get numberField(): number {
     return this.numberField_;
@@ -190,12 +201,9 @@ export class BasicData {
       return;
     }
     this.numberField_ = value;
-    if (this.onNumberFieldChange) {
-      this.onNumberFieldChange(this.numberField_, oldValue);
-    }
+    this.emit('numberField', this.numberField_, oldValue);
   }
 
-  public onStringArrayFieldChange: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void;
   private stringArrayField_?: ObservableArray<string>;
   get stringArrayField(): ObservableArray<string> {
     return this.stringArrayField_;
@@ -206,15 +214,22 @@ export class BasicData {
       return;
     }
     this.stringArrayField_ = value;
-    if (this.onStringArrayFieldChange) {
-      this.onStringArrayFieldChange(this.stringArrayField_, oldValue);
+    this.emit('stringArrayField', this.stringArrayField_, oldValue);
+  }
+
+  public triggerInitialEvents(): void {
+    if (this.numberField_ !== undefined) {
+      this.emit('numberField', this.numberField_, undefined);
+    }
+    if (this.stringArrayField_ !== undefined) {
+      this.emit('stringArrayField', this.stringArrayField_, undefined);
     }
   }
-  
+
   public toJSON(): Object {
     return {
-      numberField: this.numberField;
-      stringArrayField: this.stringArrayField;
+      numberField: this.numberField,
+      stringArrayField: this.stringArrayField,
     };
   }
 }
@@ -244,16 +259,16 @@ It's recommended to commit `basic.ts` as a source file such that any code change
 
 ## Listen on observable message
 
-Changes are detected through TypeScript setter. Listeners can be added as the following.
+Changes are detected through TypeScript setter. Events are emitted via NodeJs's `EventEmitter`.
 
 ```TypeScript
 import { BasicData } from './basic';
 import { ObservableArray } from '@selfage/observable_array'; // Install @selfage/observable_array
 
 let basicData = new BasicData();
-basicData.onNumberFieldChange = (newValue, oldValue) => {
+basicData.on('numberField', (newValue, oldValue) => {
   console.log(`newValue: ${newValue}; oldValue: ${oldValue};`);
-}
+});
 basicData.numberField = 10;
 // Print: newValue: 10; oldValue: undefined;
 basicData.numberField = 100;
@@ -263,9 +278,9 @@ delete basicData.numberField;
 basicData.numberField = undefined;
 // Print: newValue: undefined; oldValue: 100;
 
-basicData.onStringArrayFieldChange = (newValue, oldValue) => {
+basicData.on('stringArrayField', (newValue, oldValue) => {
   console.log(`newValue: ${JSON.stringify(newValue)}; oldValue: ${JSON.stringify(oldValue)};`);
-}
+});
 basicData.stringArrayField = ObservableArray.of('str1', 'str2');
 // Print: newValue: ['str1','str2']; oldValue: undefined;
 basicData.stringArrayField = ObservableArray.of('str1', 'str2');
@@ -288,9 +303,20 @@ import { parseMessage } from '@selfage/message/parser';
 import { BASIC_DATA, BasicData } from './basic'; // As generated from the example above.
 
 let raw = JSON.parse(`{ "numberField": 111, "otherField": "random", "stringArrayField": ["str1", "str2"] }`);
-let output = new BasicData();
-// Providing an output argument might be preferred because you can add listeners here before parsing input.
-parseMessage(raw, BASIC_DATA, output);
+let basicData = parseMessage(raw, BASIC_DATA); // Of type `BasicData`.
+```
+
+## Trigger initial events
+
+If you have created an observable message before you could add listeners to it, you can trigger initial events, such that listeners called as if each field is just assigned with the new value.
+
+```TypeScript
+import { BASIC_DATA, BasicData } from './basic'; // As generated from the example above.
+
+let data = new BasicData();
+data.numberField = 111;
+data.triggerInitialEvents();
+// Emit `numberField` event with newValue as 111, and oldValue as undefined.
 ```
 
 ## Test matcher
@@ -321,12 +347,10 @@ We might even introduce an index number to each field of `message`, if data size
 
 ## Design considerations for observable message
 
-We have also provided `@selfage/observable_js` in pure JavaScript to convert any objects into observable objects via ES6 proxy. The main reason we didn't do the same thing in TypeScript is that we failed to find a way to make the converted observable objects type-safe. I.e., what would be the return type for function `toObservable<T>(message: T): ?` requring `on<field name>Change()` to be added to `T` and can be type checked by TypeScript?
+We have also provided `@selfage/observable_js` in pure JavaScript to convert any objects into observable objects via ES6 proxy. The main reason we didn't do the same thing in TypeScript is that we failed to find a way to make the converted observable objects type-safe. I.e., what would be the return type for function `toObservable<T>(message: T): ?` requring `on(event: '<field name>', listener:...)` to be added to `T` and can be type checked by TypeScript?
 
 As for why we didn't allow bubbling up changes, it's because:
 
-1. It introduces lots of if-statements to check whether a callback function is provided.
-2. Our main use case is to observe changes on states to trigger UI changes, where each component can own its own observable message/object. Nested messages/objects should be observed by nested components.
-3. If you want to push new states into browser history, you probably don't want to push upon every single change, because an operation might trigger multiple changes which should be grouped into one history entry.
+1. Our main use case is to observe changes on states to trigger UI changes, where each component can own its own observable message/object. Nested messages/objects should be observed by nested components. It could be messy to ignore nested messages/objects.
+2. If you want to push new states into browser history, you probably don't want to push upon every single change, because an operation might trigger multiple changes which should be grouped into one history entry.
 
-Exactly because of the same use case in mind, we only allow assigning one listener function to each property.
