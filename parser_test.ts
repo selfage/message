@@ -1,116 +1,11 @@
-import { EnumDescriptor, MessageDescriptor, PrimitiveType } from "./descriptor";
+import { EnumDescriptor } from "./descriptor";
 import { parseEnum, parseMessage } from "./parser";
+import { HistoryState, HomeState, STATE, State } from "./test_data/state";
+import { NESTED_USER, USER } from "./test_data/user";
 import { eqMessage } from "./test_matcher";
 import { ObservableArray } from "@selfage/observable_array";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
-
-let USER: MessageDescriptor<any> = {
-  name: "User",
-  factoryFn: () => {
-    return new Object();
-  },
-  fields: [
-    { name: "id", primitiveType: PrimitiveType.NUMBER },
-    { name: "isPaid", primitiveType: PrimitiveType.BOOLEAN },
-    { name: "nickname", primitiveType: PrimitiveType.STRING },
-    { name: "email", primitiveType: PrimitiveType.STRING },
-    {
-      name: "idHistory",
-      primitiveType: PrimitiveType.NUMBER,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
-    },
-    {
-      name: "isPaidHistory",
-      primitiveType: PrimitiveType.BOOLEAN,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
-    },
-    {
-      name: "nicknameHistory",
-      primitiveType: PrimitiveType.STRING,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
-    },
-    {
-      name: "emailHistory",
-      primitiveType: PrimitiveType.STRING,
-      observableArrayFactoryFn: () => {
-        return new ObservableArray<any>();
-      },
-    },
-  ],
-};
-
-let COLOR: EnumDescriptor<any> = {
-  name: "Color",
-  values: [
-    { name: "RED", value: 10 },
-    { name: "BLUE", value: 1 },
-    { name: "GREEN", value: 2 },
-  ],
-};
-
-let USER_INFO: MessageDescriptor<any> = {
-  name: "UserInfo",
-  factoryFn: () => {
-    return new Object();
-  },
-  fields: [
-    {
-      name: "intro",
-      primitiveType: PrimitiveType.STRING,
-    },
-    {
-      name: "backgroundColor",
-      enumDescriptor: COLOR,
-    },
-    {
-      name: "preferredColor",
-      enumDescriptor: COLOR,
-    },
-    {
-      name: "colorHistory",
-      enumDescriptor: COLOR,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
-    },
-  ],
-};
-
-let CREDIT_CARD: MessageDescriptor<any> = {
-  name: "CreditCard",
-  factoryFn: () => {
-    return new Object();
-  },
-  fields: [{ name: "cardNumber", primitiveType: PrimitiveType.NUMBER }],
-};
-
-let NESTED_USER: MessageDescriptor<any> = {
-  name: "User",
-  factoryFn: () => {
-    return new Object();
-  },
-  fields: [
-    { name: "id", primitiveType: PrimitiveType.NUMBER },
-    {
-      name: "userInfo",
-      messageDescriptor: USER_INFO,
-    },
-    {
-      name: "creditCards",
-      messageDescriptor: CREDIT_CARD,
-      observableArrayFactoryFn: () => {
-        return new ObservableArray<any>();
-      },
-    },
-  ],
-};
 
 function testParseEnum(input: string | number, expected: number) {
   // Prepare
@@ -170,7 +65,6 @@ NODE_TEST_RUNNER.run({
             idHistory: [11, 20, "20", {}, 855],
             isPaidHistory: [false, true, false, false],
             nicknameHistory: ["queen", "king", "ace"],
-            emailHistory: ["test1@test.com", "123@ttt.com"],
           },
           USER
         );
@@ -187,7 +81,6 @@ NODE_TEST_RUNNER.run({
               idHistory: [11, 20, undefined, undefined, 855],
               isPaidHistory: [false, true, false, false],
               nicknameHistory: ["queen", "king", "ace"],
-              emailHistory: ["test1@test.com", "123@ttt.com"],
             },
             USER
           ),
@@ -199,14 +92,12 @@ NODE_TEST_RUNNER.run({
       name: "ParseMessagePrimtivesOverride",
       execute: () => {
         // Prepare
-        let emailHistory = new ObservableArray<string>();
-        emailHistory.push(undefined, "test1@test.com", "123@ttt.com");
         let original: any = {
           id: 12,
           email: "0@grmail.com",
           idHistory: [11, undefined, 20],
           isPaidHistory: [false, true, false, false],
-          emailHistory: emailHistory,
+          nicknameHistory: ["queen", "king", "ace"],
         };
 
         // Execute
@@ -215,7 +106,7 @@ NODE_TEST_RUNNER.run({
             nickname: "jack",
             email: "test@gmail.com",
             idHistory: [11, 12],
-            emailHistory: ["test1@test.com", "123@ttt.com"],
+            isPaidHistory: [false, true, "false", true, 12],
           },
           USER,
           original
@@ -229,23 +120,13 @@ NODE_TEST_RUNNER.run({
               nickname: "jack",
               email: "test@gmail.com",
               idHistory: [11, 12],
-              emailHistory: ["test1@test.com", "123@ttt.com"],
+              isPaidHistory: [false, true, undefined, true, undefined],
             },
             USER
           ),
           "parsed"
         );
         assertThat(parsed, eq(original), "parsed reference");
-        assertThat(
-          parsed.idHistory,
-          eq(original.idHistory),
-          "idHistory reference"
-        );
-        assertThat(
-          parsed.emailHistory,
-          eq(original.emailHistory),
-          "emailHistory reference"
-        );
       },
     },
     {
@@ -283,12 +164,7 @@ NODE_TEST_RUNNER.run({
                 preferredColor: 1,
                 colorHistory: [undefined, 1, 2, 10],
               },
-              creditCards: ObservableArray.of(
-                {},
-                undefined,
-                {},
-                { cardNumber: 3030 }
-              ),
+              creditCards: [{}, undefined, {}, { cardNumber: 3030 }],
             },
             NESTED_USER
           ),
@@ -305,10 +181,7 @@ NODE_TEST_RUNNER.run({
             backgroundColor: "BLUE",
             colorHistory: ["BLUE"],
           },
-          creditCards: ObservableArray.of(
-            { cardNumber: 1010 },
-            { cardNumber: 3030 }
-          ),
+          creditCards: [{ cardNumber: 1010 }, { cardNumber: 3030 }],
         };
 
         // Execute
@@ -339,42 +212,105 @@ NODE_TEST_RUNNER.run({
                 preferredColor: 1,
                 colorHistory: [1, 2],
               },
-              creditCards: ObservableArray.of(
+              creditCards: [
                 { cardNumber: 2020 },
                 { cardNumber: 4040 },
-                { cardNumber: 5050 }
-              ),
+                { cardNumber: 5050 },
+              ],
             },
             NESTED_USER
           ),
           "parsed"
         );
         assertThat(parsed, eq(original), "parsed reference");
-        assertThat(
-          parsed.userInfo,
-          eq(original.userInfo),
-          "parsed.userInfo reference"
+      },
+    },
+    {
+      name: "ParseObservableAllPopulated",
+      execute: () => {
+        // Execute
+        let parsed = parseMessage(
+          {
+            showHome: true,
+            homeState: {
+              videoId: "id1",
+            },
+            historyState: {
+              videoIds: ["id2", "id3", "id4"],
+            },
+          },
+          STATE
         );
-        assertThat(
-          parsed.userInfo.colorHistory,
-          eq(original.userInfo.colorHistory),
-          "parsed.userInfo.colorHistory reference"
+
+        // Verify
+        let expectedState = new State();
+        expectedState.showHome = true;
+        expectedState.homeState = new HomeState();
+        expectedState.homeState.videoId = "id1";
+        expectedState.historyState = new HistoryState();
+        expectedState.historyState.videoIds = ObservableArray.of(
+          "id2",
+          "id3",
+          "id4"
         );
-        assertThat(
-          parsed.creditCards,
-          eq(original.creditCards),
-          "parsed.creditCards reference"
+        assertThat(parsed, eqMessage(expectedState, STATE), "parsed state");
+      },
+    },
+    {
+      name: "ParseObservableOverrides",
+      execute: () => {
+        // Prepare
+        let original = new State();
+        original.showHome = true;
+        original.homeState = new HomeState();
+        original.homeState.videoId = "id1";
+        original.historyState = new HistoryState();
+        original.historyState.videoIds = ObservableArray.of(
+          "id2",
+          "id3",
+          "id4"
         );
-        assertThat(
-          parsed.creditCards.get(0),
-          eq(original.creditCards.get(0)),
-          "parsed.creditCards.get(0) reference"
+
+        // Execute
+        let parsed = parseMessage(
+          {
+            showHome: true,
+            historyState: {
+              videoIds: ["id5", 123],
+            },
+          },
+          STATE,
+          original
         );
-        assertThat(
-          parsed.creditCards.get(1),
-          eq(original.creditCards.get(1)),
-          "parsed.creditCards.get(0) reference"
+
+        // Verify
+        let expectedState = new State();
+        expectedState.showHome = true;
+        expectedState.historyState = new HistoryState();
+        expectedState.historyState.videoIds = ObservableArray.of(
+          "id5",
+          undefined
         );
+        assertThat(parsed, eqMessage(expectedState, STATE), "parsed state");
+        assertThat(parsed, eq(original), "parsed reference");
+      },
+    },
+    {
+      name: "ParseObservableFromObservable",
+      execute: () => {
+        // Prepare
+        let state = new State();
+        state.showHome = true;
+        state.homeState = new HomeState();
+        state.homeState.videoId = "id1";
+        state.historyState = new HistoryState();
+        state.historyState.videoIds = ObservableArray.of("id2", "id3", "id4");
+
+        // Execute
+        let parsed = parseMessage(state, STATE);
+
+        // Verify
+        assertThat(parsed, eqMessage(state, STATE), "parsed state");
       },
     },
   ],

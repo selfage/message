@@ -5,6 +5,7 @@ import {
   MessageField,
   PrimitiveType,
 } from "./descriptor";
+import { ObservableArray } from "@selfage/observable_array";
 
 export function parseEnum<T>(raw: any, descriptor: EnumDescriptor<T>): any {
   let enumValueFound: EnumValue;
@@ -40,45 +41,50 @@ export function parseMessage<T>(
   for (let field of descriptor.fields) {
     if (!field.arrayFactoryFn && !field.observableArrayFactoryFn) {
       ret[field.name] = parseField(raw[field.name], field, ret[field.name]);
-    } else if (!Array.isArray(raw[field.name])) {
+    } else if (
+      !Array.isArray(raw[field.name]) &&
+      !(raw[field.name] instanceof ObservableArray)
+    ) {
       ret[field.name] = undefined;
     } else {
-      let values = ret[field.name];
-      let setter: (index: number, newValue: any) => void;
-      let getter: (index: number) => any;
+      let rawValues = raw[field.name];
+      let retValues = ret[field.name];
+      let retSetFn: (index: number, newValue: any) => void;
+      let retGetFn: (index: number) => any;
       if (field.arrayFactoryFn) {
-        if (!values) {
-          values = field.arrayFactoryFn();
+        if (!retValues) {
+          retValues = field.arrayFactoryFn();
         }
-        setter = (index, newValue) => {
-          values[index] = newValue;
+        retSetFn = (index, newValue) => {
+          retValues[index] = newValue;
         };
-        getter = (index) => {
-          return values[index];
+        retGetFn = (index) => {
+          return retValues[index];
         };
       } else {
         // field.observableArrayFactoryFn
-        if (!values) {
-          values = field.observableArrayFactoryFn();
+        if (!retValues) {
+          retValues = field.observableArrayFactoryFn();
         }
-        setter = (index, newValue) => {
-          values.set(index, newValue);
+        retSetFn = (index, newValue) => {
+          retValues.set(index, newValue);
         };
-        getter = (index) => {
-          return values.get(index);
+        retGetFn = (index) => {
+          return retValues.get(index);
         };
       }
-      ret[field.name] = values;
-      for (let i = 0; i < raw[field.name].length; i++) {
-        let element = raw[field.name][i];
-        if (i < values.length) {
-          setter(i, parseField(element, field, getter(i)));
+      ret[field.name] = retValues;
+      let i = 0;
+      for (let element of rawValues) {
+        if (i < retValues.length) {
+          retSetFn(i, parseField(element, field, retGetFn(i)));
         } else {
-          values.push(parseField(element, field));
+          retValues.push(parseField(element, field));
         }
+        i++;
       }
-      for (let i = values.length; i > raw[field.name].length; i--) {
-        values.pop();
+      for (let i = retValues.length; i > rawValues.length; i--) {
+        retValues.pop();
       }
     }
   }

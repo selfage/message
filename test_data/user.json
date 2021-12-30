@@ -1,0 +1,85 @@
+[{
+  "message": {
+    "name": "User",
+    "fields": [{
+      "name": "id",
+      "type": "number"
+    }, {
+      "name" : "isPaid",
+      "type": "boolean"
+    }, {
+      "name": "nickname",
+      "type": "string"
+    }, {
+      "name": "email",
+      "type": "string"
+    }, {
+      "name": "idHistory",
+      "type": "number",
+      "isArray": true
+    }, {
+      "name": "isPaidHistory",
+      "type": "boolean",
+      "isArray": true
+    }, {
+      "name": "nicknameHistory",
+      "type": "string",
+      "isArray": true
+    }]
+  }
+}, {
+  "enum": {
+    "name": "Color",
+    "values": [{
+      "name": "RED",
+      "value": 10
+    }, {
+      "name": "BLUE",
+      "value": 1
+    }, {
+      "name": "GREEN",
+      "value": 2
+    }]
+  }
+}, {
+  "message": {
+    "name": "UserInfo",
+    "fields": [{
+      "name": "intro",
+      "type": "string"
+    }, {
+      "name": "backgroundColor",
+      "type": "Color"
+    }, {
+      "name": "preferredColor",
+      "type": "Color"
+    }, {
+      "name": "colorHistory",
+      "type": "Color",
+      "isArray": true
+    }]
+  }
+}, {
+  "message": {
+    "name": "CreditCard",
+    "fields": [{
+      "name": "cardNumber",
+      "type": "number"
+    }]
+  }
+}, {
+  "message": {
+    "name": "NestedUser",
+    "fields": [{
+      "name": "id",
+      "type": "number"
+    }, {
+      "name": "userInfo",
+      "type": "UserInfo"
+    }, {
+      "name": "creditCards",
+      "type": "CreditCard",
+      "isArray": true
+    }]
+  }
+}]
