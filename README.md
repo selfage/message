@@ -191,7 +191,7 @@ import { MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
 export interface BasicData {
   on(event: 'numberField', listener: (newValue: number, oldValue: number) => void): this;
   on(event: 'stringArrayField', listener: (newValue: ObservableArray<string>, oldValue: ObservableArray<string>) => void): this;
-  on(event: string, listener: Function): this;
+  on(event: 'init', listener: () => void): this;
 }
 
 export class BasicData extends EventEmitter {
@@ -228,6 +228,7 @@ export class BasicData extends EventEmitter {
     if (this.stringArrayField_ !== undefined) {
       this.emit('stringArrayField', this.stringArrayField_, undefined);
     }
+    this.emit('init');
   }
 
   public toJSON(): Object {
