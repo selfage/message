@@ -333,12 +333,25 @@ Technically, `parseMessage` can be used to copy messages as well. However, `copy
 import { copyMessage } from '@selfage/message/copier';
 import { BASIC_DATA, BasicData } from './basic'; // As generated from the example above.
 
-let data = new BasicData();
-data.numberField = 111;
-let dest = copyMessage(data, BASIC_DATA);
+let basicData: BasicData = { numberField: 111 };
+let dest = copyMessage(basicData, BASIC_DATA);
 // Or in-place copy.
-let dest2 = new BasicData();
+let dest2: BasicData = {};
 copyMessage(data, BASIC_DATA, dest2);
+```
+
+## Merge messages and observables
+
+If provided a destination/existing message, both `parseMessage` and `copyMessage` will replace every field with the new one. `mergeMessage`, however, will only keep the existing field if the corresponding new field is actually set, i.e., not undefined.
+
+```TypeScript
+import { mergeMessage } from '@selfage/message/merger';
+import { BASIC_DATA, BasicData } from './basic'; // As generated from the example above.
+
+let source: BasicData = { stringArrayField: ["123"] };
+let existing: BasicData = { numberField: 111 };
+mergeMessage(source, BASIC_DATA, existing);
+// Now `existing` becomes: { numberField: 111, stringArrayField: ["123"] }
 ```
 
 ## Test matcher

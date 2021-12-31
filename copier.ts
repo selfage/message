@@ -20,7 +20,7 @@ export function copyMessage<T>(
   for (let field of descriptor.fields) {
     if (!field.arrayFactoryFn && !field.observableArrayFactoryFn) {
       ret[field.name] = copyField(source[field.name], field, ret[field.name]);
-    } else if(!source[field.name]) {
+    } else if (!source[field.name]) {
       ret[field.name] = undefined;
     } else {
       let sourceValues = source[field.name];

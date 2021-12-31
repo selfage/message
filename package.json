@@ -1,6 +1,6 @@
 {
   "name": "@selfage/message",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Generated message descriptor to assist runtime processing.",
   "repository": {
     "type": "git",
