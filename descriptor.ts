@@ -1,5 +1,3 @@
-import { ObservableArray } from "@selfage/observable_array";
-
 export interface EnumValue {
   name: string;
   value: number;
@@ -19,14 +17,12 @@ export enum PrimitiveType {
 export interface MessageField {
   name: string;
   primitiveType?: PrimitiveType;
-  enumDescriptor?: EnumDescriptor<any>;
-  messageDescriptor?: MessageDescriptor<any>;
-  arrayFactoryFn?: () => Array<any>;
-  observableArrayFactoryFn?: () => ObservableArray<any>;
+  enumType?: EnumDescriptor<any>;
+  messageType?: MessageDescriptor<any>;
+  isArray?: true;
 }
 
 export interface MessageDescriptor<T> {
   name: string;
-  factoryFn: () => T;
   fields?: MessageField[];
 }

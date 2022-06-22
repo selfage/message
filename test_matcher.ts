@@ -1,6 +1,11 @@
-import { MessageDescriptor } from "./descriptor";
-import { eqObservableArray } from "@selfage/observable_array/test_matcher";
-import { MatchFn, assertThat, eq, eqArray } from "@selfage/test_matcher";
+import { MessageDescriptor, MessageField } from "./descriptor";
+import {
+  MatchFn,
+  assertThat,
+  eq,
+  eqArray,
+  assert,
+} from "@selfage/test_matcher";
 
 export function eqMessage<T>(
   expected: T | undefined,
@@ -11,54 +16,42 @@ export function eqMessage<T>(
       assertThat(actual, eq(undefined), "nullity");
       return;
     }
+    assert(Boolean(actual), `to not be null`, `null`);
     let expectedAny = expected as any;
     let actualAny = actual as any;
-    for (let field of descriptor.fields) {
+    for (let fieldDescriptor of descriptor.fields) {
       let fieldMatcher: MatchFn<any>;
-      if (field.primitiveType || field.enumDescriptor) {
-        if (field.arrayFactoryFn || field.observableArrayFactoryFn) {
-          let eqElements: Array<MatchFn<any>>;
-          if (expectedAny[field.name] !== undefined) {
-            eqElements = new Array<MatchFn<any>>();
-            for (let element of expectedAny[field.name]) {
-              eqElements.push(eq(element));
-            }
-          }
-          if (field.arrayFactoryFn) {
-            fieldMatcher = eqArray(eqElements);
-          } else {
-            fieldMatcher = eqObservableArray(eqElements);
-          }
-        } else {
-          fieldMatcher = eq(expectedAny[field.name]);
-        }
-      } else if (field.messageDescriptor) {
-        if (field.arrayFactoryFn || field.observableArrayFactoryFn) {
-          let eqElements: Array<MatchFn<any>>;
-          if (expectedAny[field.name] !== undefined) {
-            eqElements = new Array<MatchFn<any>>();
-            for (let element of expectedAny[field.name]) {
-              eqElements.push(eqMessage(element, field.messageDescriptor));
-            }
-          }
-          if (field.arrayFactoryFn) {
-            fieldMatcher = eqArray(eqElements);
-          } else {
-            fieldMatcher = eqObservableArray(eqElements);
-          }
-        } else {
-          fieldMatcher = eqMessage(
-            expectedAny[field.name],
-            field.messageDescriptor
-          );
-        }
-      } else {
-        throw new Error(
-          `Field type of ${field.name} is not supported. Field definition ` +
-            `is ${JSON.stringify(field)}`
+      if (!fieldDescriptor.isArray) {
+        fieldMatcher = eqMessageField(
+          expectedAny[fieldDescriptor.name],
+          fieldDescriptor
         );
+      } else {
+        let eqElements: Array<MatchFn<any>>;
+        if (expectedAny[fieldDescriptor.name] !== undefined) {
+          eqElements = new Array<MatchFn<any>>();
+          for (let element of expectedAny[fieldDescriptor.name]) {
+            eqElements.push(eqMessageField(element, fieldDescriptor));
+          }
+        }
+        fieldMatcher = eqArray(eqElements);
       }
-      assertThat(actualAny[field.name], fieldMatcher, `${field.name} field`);
+      assertThat(
+        actualAny[fieldDescriptor.name],
+        fieldMatcher,
+        `${fieldDescriptor.name} field`
+      );
     }
   };
+}
+
+export function eqMessageField(
+  expectedField: any,
+  fieldDescriptor: MessageField
+): MatchFn<any> {
+  if (fieldDescriptor.primitiveType || fieldDescriptor.enumType) {
+    return eq(expectedField);
+  } else {
+    return eqMessage(expectedField, fieldDescriptor.messageType);
+  }
 }

@@ -1,9 +1,7 @@
 import { EnumDescriptor } from "./descriptor";
 import { parseEnum, parseMessage } from "./parser";
-import { HistoryState, HomeState, STATE, State } from "./test_data/state";
 import { NESTED_USER, USER } from "./test_data/user";
 import { eqMessage } from "./test_matcher";
-import { ObservableArray } from "@selfage/observable_array";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
@@ -26,7 +24,7 @@ function testParseEnum(input: string | number, expected: number) {
 }
 
 NODE_TEST_RUNNER.run({
-  name: "MessageUtilTest",
+  name: "ParserTest",
   cases: [
     {
       name: "ParseEnumValueFromNumber",
@@ -223,94 +221,6 @@ NODE_TEST_RUNNER.run({
           "parsed"
         );
         assertThat(parsed, eq(original), "parsed reference");
-      },
-    },
-    {
-      name: "ParseObservableAllPopulated",
-      execute: () => {
-        // Execute
-        let parsed = parseMessage(
-          {
-            showHome: true,
-            homeState: {
-              videoId: "id1",
-            },
-            historyState: {
-              videoIds: ["id2", "id3", "id4"],
-            },
-          },
-          STATE
-        );
-
-        // Verify
-        let expectedState = new State();
-        expectedState.showHome = true;
-        expectedState.homeState = new HomeState();
-        expectedState.homeState.videoId = "id1";
-        expectedState.historyState = new HistoryState();
-        expectedState.historyState.videoIds = ObservableArray.of(
-          "id2",
-          "id3",
-          "id4"
-        );
-        assertThat(parsed, eqMessage(expectedState, STATE), "parsed state");
-      },
-    },
-    {
-      name: "ParseObservableOverrides",
-      execute: () => {
-        // Prepare
-        let original = new State();
-        original.showHome = true;
-        original.homeState = new HomeState();
-        original.homeState.videoId = "id1";
-        original.historyState = new HistoryState();
-        original.historyState.videoIds = ObservableArray.of(
-          "id2",
-          "id3",
-          "id4"
-        );
-
-        // Execute
-        let parsed = parseMessage(
-          {
-            showHome: true,
-            historyState: {
-              videoIds: ["id5", 123],
-            },
-          },
-          STATE,
-          original
-        );
-
-        // Verify
-        let expectedState = new State();
-        expectedState.showHome = true;
-        expectedState.historyState = new HistoryState();
-        expectedState.historyState.videoIds = ObservableArray.of(
-          "id5",
-          undefined
-        );
-        assertThat(parsed, eqMessage(expectedState, STATE), "parsed state");
-        assertThat(parsed, eq(original), "parsed reference");
-      },
-    },
-    {
-      name: "ParseObservableFromObservable",
-      execute: () => {
-        // Prepare
-        let state = new State();
-        state.showHome = true;
-        state.homeState = new HomeState();
-        state.homeState.videoId = "id1";
-        state.historyState = new HistoryState();
-        state.historyState.videoIds = ObservableArray.of("id2", "id3", "id4");
-
-        // Execute
-        let parsed = parseMessage(state, STATE);
-
-        // Verify
-        assertThat(parsed, eqMessage(state, STATE), "parsed state");
       },
     },
   ],

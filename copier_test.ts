@@ -1,8 +1,6 @@
 import { copyMessage } from "./copier";
-import { HistoryState, HomeState, STATE, State } from "./test_data/state";
 import { NESTED_USER, NestedUser, USER, User } from "./test_data/user";
 import { eqMessage } from "./test_matcher";
-import { ObservableArray } from "@selfage/observable_array";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
@@ -41,7 +39,6 @@ NODE_TEST_RUNNER.run({
           email: "test@gmail.com",
           idHistory: [11, 20, undefined, undefined, 855],
           isPaidHistory: [true, false, undefined],
-          nicknameHistory: ["queen", "king", "ace"],
         };
         let dest: User = {
           id: 15,
@@ -122,61 +119,6 @@ NODE_TEST_RUNNER.run({
         // Verify
         assertThat(dest, eqMessage(source, NESTED_USER), "copied");
         assertThat(ret, eq(dest), "copied reference");
-      },
-    },
-    {
-      name: "CopyObservable",
-      execute: () => {
-        // Prepare
-        let source = new State();
-        source.showHome = true;
-        source.homeState = new HomeState();
-        source.homeState.videoId = "id1";
-        source.historyState = new HistoryState();
-        source.historyState.videoIds = ObservableArray.of("id2", "id3", "id4");
-
-        // Execute
-        let ret = copyMessage(source, STATE);
-
-        // Verify
-        assertThat(ret, eqMessage(source, STATE), "copied");
-      },
-    },
-    {
-      name: "CopyObservableInPlaceOverrides",
-      execute: () => {
-        // Prepare
-        let source = new State();
-        source.showHome = true;
-        source.homeState = new HomeState();
-        source.homeState.videoId = "id1";
-        source.historyState = new HistoryState();
-        source.historyState.videoIds = ObservableArray.of("id2", "id3", "id4");
-        let dest = new State();
-        source.homeState = new HomeState();
-        source.homeState.videoId = "id2";
-        source.historyState = new HistoryState();
-        source.historyState.videoIds = ObservableArray.of("id5");
-
-        // Execute
-        let ret = copyMessage(source, STATE, dest);
-
-        // Verify
-        assertThat(dest, eqMessage(source, STATE), "copied");
-        assertThat(ret, eq(dest), "copied reference");
-      },
-    },
-    {
-      name: "CopyObservableEmpty",
-      execute: () => {
-        // Prepare
-        let source = new State();
-
-        // Execute
-        let ret = copyMessage(source, STATE);
-
-        // Verify
-        assertThat(ret, eqMessage(source, STATE), "copied");
       },
     },
   ],

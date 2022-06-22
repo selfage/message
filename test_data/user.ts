@@ -12,9 +12,6 @@ export interface User {
 
 export let USER: MessageDescriptor<User> = {
   name: 'User',
-  factoryFn: () => {
-    return new Object();
-  },
   fields: [
     {
       name: 'id',
@@ -35,23 +32,17 @@ export let USER: MessageDescriptor<User> = {
     {
       name: 'idHistory',
       primitiveType: PrimitiveType.NUMBER,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
+      isArray: true
     },
     {
       name: 'isPaidHistory',
       primitiveType: PrimitiveType.BOOLEAN,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
+      isArray: true
     },
     {
       name: 'nicknameHistory',
       primitiveType: PrimitiveType.STRING,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
+      isArray: true
     },
   ]
 };
@@ -89,9 +80,6 @@ export interface UserInfo {
 
 export let USER_INFO: MessageDescriptor<UserInfo> = {
   name: 'UserInfo',
-  factoryFn: () => {
-    return new Object();
-  },
   fields: [
     {
       name: 'intro',
@@ -99,18 +87,16 @@ export let USER_INFO: MessageDescriptor<UserInfo> = {
     },
     {
       name: 'backgroundColor',
-      enumDescriptor: COLOR,
+      enumType: COLOR,
     },
     {
       name: 'preferredColor',
-      enumDescriptor: COLOR,
+      enumType: COLOR,
     },
     {
       name: 'colorHistory',
-      enumDescriptor: COLOR,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
+      enumType: COLOR,
+      isArray: true
     },
   ]
 };
@@ -121,9 +107,6 @@ export interface CreditCard {
 
 export let CREDIT_CARD: MessageDescriptor<CreditCard> = {
   name: 'CreditCard',
-  factoryFn: () => {
-    return new Object();
-  },
   fields: [
     {
       name: 'cardNumber',
@@ -140,9 +123,6 @@ export interface NestedUser {
 
 export let NESTED_USER: MessageDescriptor<NestedUser> = {
   name: 'NestedUser',
-  factoryFn: () => {
-    return new Object();
-  },
   fields: [
     {
       name: 'id',
@@ -150,14 +130,12 @@ export let NESTED_USER: MessageDescriptor<NestedUser> = {
     },
     {
       name: 'userInfo',
-      messageDescriptor: USER_INFO,
+      messageType: USER_INFO,
     },
     {
       name: 'creditCards',
-      messageDescriptor: CREDIT_CARD,
-      arrayFactoryFn: () => {
-        return new Array<any>();
-      },
+      messageType: CREDIT_CARD,
+      isArray: true
     },
   ]
 };

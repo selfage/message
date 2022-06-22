@@ -1,7 +1,4 @@
-import {
-  MessageDescriptor,
-  MessageField,
-} from "./descriptor";
+import { MessageDescriptor, MessageField } from "./descriptor";
 
 export function copyMessage<T>(
   fromMessage: T,
@@ -15,52 +12,30 @@ export function copyMessage<T>(
   let source: any = fromMessage;
   let ret: any = toMessage;
   if (!ret) {
-    ret = descriptor.factoryFn();
+    ret = {};
   }
   for (let field of descriptor.fields) {
-    if (!field.arrayFactoryFn && !field.observableArrayFactoryFn) {
+    if (!field.isArray) {
       ret[field.name] = copyField(source[field.name], field, ret[field.name]);
     } else if (!source[field.name]) {
       ret[field.name] = undefined;
     } else {
-      let sourceValues = source[field.name];
-      let retValues = ret[field.name];
-      let retSetFn: (index: number, newValue: any) => void;
-      let retGetFn: (index: number) => any;
-      if (field.arrayFactoryFn) {
-        if (!retValues) {
-          retValues = field.arrayFactoryFn();
-        }
-        retSetFn = (index, newValue) => {
-          retValues[index] = newValue;
-        };
-        retGetFn = (index) => {
-          return retValues[index];
-        };
-      } else {
-        // field.observableArrayFactoryFn
-        if (!retValues) {
-          retValues = field.observableArrayFactoryFn();
-        }
-        retSetFn = (index, newValue) => {
-          retValues.set(index, newValue);
-        };
-        retGetFn = (index) => {
-          return retValues.get(index);
-        };
+      if (!ret[field.name]) {
+        ret[field.name] = [];
       }
-      ret[field.name] = retValues;
+      let sourceArrayField = source[field.name];
+      let retArrayField = ret[field.name];
       let i = 0;
-      for (let element of sourceValues) {
-        if (i < retValues.length) {
-          retSetFn(i, copyField(element, field, retGetFn(i)));
+      for (let element of sourceArrayField) {
+        if (i < retArrayField.length) {
+          retArrayField[i] = copyField(element, field, retArrayField[i]);
         } else {
-          retValues.push(copyField(element, field));
+          retArrayField.push(copyField(element, field));
         }
         i++;
       }
-      for (let i = retValues.length; i > sourceValues.length; i--) {
-        retValues.pop();
+      for (let i = retArrayField.length; i > sourceArrayField.length; i--) {
+        retArrayField.pop();
       }
     }
   }
@@ -72,9 +47,9 @@ function copyField(
   field: MessageField,
   outputField?: any
 ): any {
-  if (field.primitiveType || field.enumDescriptor) {
+  if (field.primitiveType || field.enumType) {
     return sourceField;
-  } else if (field.messageDescriptor) {
-    return copyMessage(sourceField, field.messageDescriptor, outputField);
+  } else if (field.messageType) {
+    return copyMessage(sourceField, field.messageType, outputField);
   }
 }

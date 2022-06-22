@@ -5,7 +5,6 @@ import {
   MessageField,
   PrimitiveType,
 } from "./descriptor";
-import { ObservableArray } from "@selfage/observable_array";
 
 export function parseEnum<T>(raw: any, descriptor: EnumDescriptor<T>): any {
   let enumValueFound: EnumValue;
@@ -36,62 +35,37 @@ export function parseMessage<T>(
 
   let ret: any = outputMessage;
   if (!ret) {
-    ret = descriptor.factoryFn();
+    ret = {};
   }
   for (let field of descriptor.fields) {
-    if (!field.arrayFactoryFn && !field.observableArrayFactoryFn) {
+    if (!field.isArray) {
       ret[field.name] = parseField(raw[field.name], field, ret[field.name]);
-    } else if (
-      !Array.isArray(raw[field.name]) &&
-      !(raw[field.name] instanceof ObservableArray)
-    ) {
+    } else if (!Array.isArray(raw[field.name])) {
       ret[field.name] = undefined;
     } else {
-      let rawValues = raw[field.name];
-      let retValues = ret[field.name];
-      let retSetFn: (index: number, newValue: any) => void;
-      let retGetFn: (index: number) => any;
-      if (field.arrayFactoryFn) {
-        if (!retValues) {
-          retValues = field.arrayFactoryFn();
-        }
-        retSetFn = (index, newValue) => {
-          retValues[index] = newValue;
-        };
-        retGetFn = (index) => {
-          return retValues[index];
-        };
-      } else {
-        // field.observableArrayFactoryFn
-        if (!retValues) {
-          retValues = field.observableArrayFactoryFn();
-        }
-        retSetFn = (index, newValue) => {
-          retValues.set(index, newValue);
-        };
-        retGetFn = (index) => {
-          return retValues.get(index);
-        };
+      if (!Array.isArray(ret[field.name])) {
+        ret[field.name] = [];
       }
-      ret[field.name] = retValues;
+      let rawArrayField = raw[field.name];
+      let retArrayField = ret[field.name];
       let i = 0;
-      for (let element of rawValues) {
-        if (i < retValues.length) {
-          retSetFn(i, parseField(element, field, retGetFn(i)));
+      for (let element of rawArrayField) {
+        if (i < retArrayField.length) {
+          retArrayField[i] = parseField(element, field, retArrayField[i]);
         } else {
-          retValues.push(parseField(element, field));
+          retArrayField.push(parseField(element, field));
         }
         i++;
       }
-      for (let i = retValues.length; i > rawValues.length; i--) {
-        retValues.pop();
+      for (let i = retArrayField.length; i > rawArrayField.length; i--) {
+        retArrayField.pop();
       }
     }
   }
   return ret;
 }
 
-function parseField(
+export function parseField(
   rawField: any,
   field: MessageField,
   outputField?: any
@@ -116,9 +90,9 @@ function parseField(
         return undefined;
       }
     }
-  } else if (field.enumDescriptor) {
-    return parseEnum(rawField, field.enumDescriptor);
-  } else if (field.messageDescriptor) {
-    return parseMessage(rawField, field.messageDescriptor, outputField);
+  } else if (field.enumType) {
+    return parseEnum(rawField, field.enumType);
+  } else if (field.messageType) {
+    return parseMessage(rawField, field.messageType, outputField);
   }
 }

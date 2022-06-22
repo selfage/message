@@ -1,7 +1,4 @@
-import {
-  MessageDescriptor,
-  MessageField,
-} from "./descriptor";
+import { MessageDescriptor, MessageField } from "./descriptor";
 
 export function mergeMessage<T>(
   fromMessage: T,
@@ -15,45 +12,23 @@ export function mergeMessage<T>(
   let source: any = fromMessage;
   let ret: any = toMessage;
   if (!ret) {
-    ret = descriptor.factoryFn();
+    ret = {};
   }
   for (let field of descriptor.fields) {
-    if (!field.arrayFactoryFn && !field.observableArrayFactoryFn) {
+    if (!field.isArray) {
       ret[field.name] = mergeField(source[field.name], field, ret[field.name]);
     } else if (source[field.name]) {
-      let sourceValues = source[field.name];
-      let retValues = ret[field.name];
-      let retSetFn: (index: number, newValue: any) => void;
-      let retGetFn: (index: number) => any;
-      if (field.arrayFactoryFn) {
-        if (!retValues) {
-          retValues = field.arrayFactoryFn();
-        }
-        retSetFn = (index, newValue) => {
-          retValues[index] = newValue;
-        };
-        retGetFn = (index) => {
-          return retValues[index];
-        };
-      } else {
-        // field.observableArrayFactoryFn
-        if (!retValues) {
-          retValues = field.observableArrayFactoryFn();
-        }
-        retSetFn = (index, newValue) => {
-          retValues.set(index, newValue);
-        };
-        retGetFn = (index) => {
-          return retValues.get(index);
-        };
+      if (!ret[field.name]) {
+        ret[field.name] = [];
       }
-      ret[field.name] = retValues;
+      let sourceArrayField = source[field.name];
+      let retArrayField = ret[field.name];
       let i = 0;
-      for (let element of sourceValues) {
-        if (i < retValues.length) {
-          retSetFn(i, mergeField(element, field, retGetFn(i)));
+      for (let element of sourceArrayField) {
+        if (i < retArrayField.length) {
+          retArrayField[i] = mergeField(element, field, retArrayField[i]);
         } else {
-          retValues.push(mergeField(element, field));
+          retArrayField.push(mergeField(element, field));
         }
         i++;
       }
@@ -62,18 +37,18 @@ export function mergeMessage<T>(
   return ret;
 }
 
-function mergeField(
+export function mergeField(
   sourceField: any,
   field: MessageField,
   outputField?: any
 ): any {
-  if (field.primitiveType || field.enumDescriptor) {
+  if (field.primitiveType || field.enumType) {
     if (sourceField !== undefined) {
       return sourceField;
     } else {
       return outputField;
     }
-  } else if (field.messageDescriptor) {
-    return mergeMessage(sourceField, field.messageDescriptor, outputField);
+  } else if (field.messageType) {
+    return mergeMessage(sourceField, field.messageType, outputField);
   }
 }

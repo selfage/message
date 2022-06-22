@@ -1,6 +1,6 @@
 [{
+  "name": "User",
   "message": {
-    "name": "User",
     "fields": [{
       "name": "id",
       "type": "number"
@@ -28,8 +28,8 @@
     }]
   }
 }, {
+  "name": "Color",
   "enum": {
-    "name": "Color",
     "values": [{
       "name": "RED",
       "value": 10
@@ -42,8 +42,8 @@
     }]
   }
 }, {
+  "name": "UserInfo",
   "message": {
-    "name": "UserInfo",
     "fields": [{
       "name": "intro",
       "type": "string"
@@ -60,16 +60,16 @@
     }]
   }
 }, {
+  "name": "CreditCard",
   "message": {
-    "name": "CreditCard",
     "fields": [{
       "name": "cardNumber",
       "type": "number"
     }]
   }
 }, {
+  "name": "NestedUser",
   "message": {
-    "name": "NestedUser",
     "fields": [{
       "name": "id",
       "type": "number"
