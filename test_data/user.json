@@ -15,16 +15,13 @@
       "type": "string"
     }, {
       "name": "idHistory",
-      "type": "number",
-      "isArray": true
+      "arrayType": "number"
     }, {
       "name": "isPaidHistory",
-      "type": "boolean",
-      "isArray": true
+      "arrayType": "boolean"
     }, {
       "name": "nicknameHistory",
-      "type": "string",
-      "isArray": true
+      "arrayType": "string"
     }]
   }
 }, {
@@ -55,8 +52,7 @@
       "type": "Color"
     }, {
       "name": "colorHistory",
-      "type": "Color",
-      "isArray": true
+      "arrayType": "Color"
     }]
   }
 }, {
@@ -78,8 +74,7 @@
       "type": "UserInfo"
     }, {
       "name": "creditCards",
-      "type": "CreditCard",
-      "isArray": true
+      "arrayType": "CreditCard"
     }]
   }
 }]
