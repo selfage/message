@@ -42,7 +42,7 @@ export function copyMessage<T>(
   return ret;
 }
 
-function copyField(
+export function copyField(
   sourceField: any,
   field: MessageField,
   outputField?: any
