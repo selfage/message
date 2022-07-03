@@ -1,55 +1,12 @@
-import { EnumDescriptor } from "./descriptor";
-import { parseEnum, parseMessage } from "./parser";
+import { parseMessage } from "./parser";
 import { NESTED_USER, USER } from "./test_data/user";
 import { eqMessage } from "./test_matcher";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { NODE_TEST_RUNNER } from "@selfage/test_runner";
 
-function testParseEnum(input: string | number, expected: number) {
-  // Prepare
-  let colorEnumDescriptor: EnumDescriptor<any> = {
-    name: "Color",
-    values: [
-      { name: "RED", value: 10 },
-      { name: "BLUE", value: 1 },
-      { name: "GREEN", value: 2 },
-    ],
-  };
-
-  // Execute
-  let parsed = parseEnum(input, colorEnumDescriptor);
-
-  // Verify
-  assertThat(parsed, eq(expected), "parsed");
-}
-
 NODE_TEST_RUNNER.run({
   name: "ParserTest",
   cases: [
-    {
-      name: "ParseEnumValueFromNumber",
-      execute: () => {
-        testParseEnum(10, 10);
-      },
-    },
-    {
-      name: "ParseEnumValueFromExceededNumber",
-      execute: () => {
-        testParseEnum(12, undefined);
-      },
-    },
-    {
-      name: "ParseEnumValueFromString",
-      execute: () => {
-        testParseEnum("GREEN", 2);
-      },
-    },
-    {
-      name: "ParseEnumValueFromNonexistingString",
-      execute: () => {
-        testParseEnum("BLACK", undefined);
-      },
-    },
     {
       name: "ParseMessagePrimtivesAllPopulated",
       execute: () => {
@@ -177,6 +134,7 @@ NODE_TEST_RUNNER.run({
         let original: any = {
           userInfo: {
             backgroundColor: "BLUE",
+            preferredColor: 1,
             colorHistory: ["BLUE"],
           },
           creditCards: [{ cardNumber: 1010 }, { cardNumber: 3030 }],
@@ -187,8 +145,8 @@ NODE_TEST_RUNNER.run({
           {
             userInfo: {
               backgroundColor: "RED",
-              preferredColor: 1,
-              colorHistory: ["BLUE", "GREEN"],
+              preferredColor: 12,
+              colorHistory: ["BLUE", "BLACK", "GREEN"],
             },
             creditCards: [
               { cardNumber: 2020 },
@@ -207,8 +165,8 @@ NODE_TEST_RUNNER.run({
             {
               userInfo: {
                 backgroundColor: 10,
-                preferredColor: 1,
-                colorHistory: [1, 2],
+                preferredColor: undefined,
+                colorHistory: [1, undefined, 2],
               },
               creditCards: [
                 { cardNumber: 2020 },

@@ -1,20 +1,65 @@
 import {
+  MessageDescriptor,
   EnumDescriptor,
   EnumValue,
-  MessageDescriptor,
-  MessageField,
   PrimitiveType,
 } from "./descriptor";
+import { MessageAssembler } from "./assembler";
 
-export function parseEnum<T>(raw: any, descriptor: EnumDescriptor<T>): any {
+function checkArrayType(sourceField: any): boolean {
+  return Array.isArray(sourceField);
+}
+
+function nullifyArray(ret: any, fieldName: string): void {
+  ret[fieldName] = undefined;
+}
+
+function popArrayUntilTargetLength(
+  retArrayField: any,
+  targetLength: number
+): void {
+  for (let i = retArrayField.length; i > targetLength; i--) {
+    retArrayField.pop();
+  }
+}
+
+function parsePrimitiveType(
+  sourceField: any,
+  primitiveType: PrimitiveType
+): any {
+  switch (primitiveType) {
+    case PrimitiveType.NUMBER:
+      if (typeof sourceField === "number") {
+        return sourceField;
+      } else {
+        return undefined;
+      }
+    case PrimitiveType.BOOLEAN:
+      if (typeof sourceField === "boolean") {
+        return sourceField;
+      } else {
+        return undefined;
+      }
+    case PrimitiveType.STRING:
+      if (typeof sourceField === "string") {
+        return sourceField;
+      } else {
+        return undefined;
+      }
+    default:
+      return undefined;
+  }
+}
+
+function parseEnumType(source: any, descriptor: EnumDescriptor<any>): any {
   let enumValueFound: EnumValue;
-  if (typeof raw === "string") {
+  if (typeof source === "string") {
     enumValueFound = descriptor.values.find((enumValue): boolean => {
-      return enumValue.name === raw;
+      return enumValue.name === source;
     });
-  } else if (typeof raw === "number") {
+  } else if (typeof source === "number") {
     enumValueFound = descriptor.values.find((enumValue): boolean => {
-      return enumValue.value === raw;
+      return enumValue.value === source;
     });
   }
   if (enumValueFound === undefined) {
@@ -24,75 +69,18 @@ export function parseEnum<T>(raw: any, descriptor: EnumDescriptor<T>): any {
   }
 }
 
+let MESSAGE_PARSER = new MessageAssembler(
+  checkArrayType,
+  nullifyArray,
+  popArrayUntilTargetLength,
+  parsePrimitiveType,
+  parseEnumType
+);
+
 export function parseMessage<T>(
   raw: any,
   descriptor: MessageDescriptor<T>,
-  outputMessage?: T
+  output?: T
 ): T {
-  if (!raw || typeof raw !== "object") {
-    return undefined;
-  }
-
-  let ret: any = outputMessage;
-  if (!ret) {
-    ret = {};
-  }
-  for (let field of descriptor.fields) {
-    if (!field.isArray) {
-      ret[field.name] = parseField(raw[field.name], field, ret[field.name]);
-    } else if (!Array.isArray(raw[field.name])) {
-      ret[field.name] = undefined;
-    } else {
-      if (!Array.isArray(ret[field.name])) {
-        ret[field.name] = [];
-      }
-      let rawArrayField = raw[field.name];
-      let retArrayField = ret[field.name];
-      let i = 0;
-      for (let element of rawArrayField) {
-        if (i < retArrayField.length) {
-          retArrayField[i] = parseField(element, field, retArrayField[i]);
-        } else {
-          retArrayField.push(parseField(element, field));
-        }
-        i++;
-      }
-      for (let i = retArrayField.length; i > rawArrayField.length; i--) {
-        retArrayField.pop();
-      }
-    }
-  }
-  return ret;
-}
-
-export function parseField(
-  rawField: any,
-  field: MessageField,
-  outputField?: any
-): any {
-  if (field.primitiveType) {
-    if (field.primitiveType === PrimitiveType.NUMBER) {
-      if (typeof rawField === "number") {
-        return rawField;
-      } else {
-        return undefined;
-      }
-    } else if (field.primitiveType === PrimitiveType.BOOLEAN) {
-      if (typeof rawField === "boolean") {
-        return rawField;
-      } else {
-        return undefined;
-      }
-    } else if (field.primitiveType === PrimitiveType.STRING) {
-      if (typeof rawField === "string") {
-        return rawField;
-      } else {
-        return undefined;
-      }
-    }
-  } else if (field.enumType) {
-    return parseEnum(rawField, field.enumType);
-  } else if (field.messageType) {
-    return parseMessage(rawField, field.messageType, outputField);
-  }
+  return MESSAGE_PARSER.assemble(raw, descriptor, output);
 }

@@ -136,20 +136,6 @@ export let COLOR: EnumDescriptor<Color> = {
 }
 ```
 
-### Parse enums at runtime
-
-Also because TypeScript perserves enum information at runtime. The following parser is mainly used when parsing messages.
-
-```TypeScript
-import { parseEnum } from '@selfage/message/parser';
-import { COLOR, Color } from './color'; // As generated from the example above.
-
-let raw = 1 as any;
-let blue = parseEnum(raw, COLOR); // of type Color.
-let raw2 = 'RED' as any;
-let red = parseEnum(raw2, COLOR); // of type Color.
-```
-
 ## Copy messages
 
 Technically, `parseMessage` can be used to copy messages as well. However, `copyMessage` performs better by dropping field type checks.
