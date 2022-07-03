@@ -7,7 +7,11 @@ export function checkArrayNonNull(sourceField: any): boolean {
 
 export function noop(): void {}
 
-export function mergeField(sourceField: any, type: any, outputField: any): any {
+export function mergeField(
+  sourceField: any,
+  type: any,
+  outputField?: any
+): any {
   if (sourceField !== undefined) {
     return sourceField;
   } else {
@@ -28,5 +32,5 @@ export function mergeMessage<T>(
   descriptor: MessageDescriptor<T>,
   to?: T
 ): T {
-  return MESSAGE_MERGER.assemble(from, descriptor, to);
+  return MESSAGE_MERGER.processMessageType(from, descriptor, to);
 }

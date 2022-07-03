@@ -13,16 +13,16 @@ export class MessageAssembler {
     private processPrimitiveType: (
       sourceField: any,
       primitiveType: PrimitiveType,
-      outputField: any
+      outputField?: any
     ) => any,
     private processEnumType: (
       sourceField: any,
       enumType: EnumDescriptor<any>,
-      outputField: any
+      outputField?: any
     ) => any
   ) {}
 
-  public assemble<T>(
+  public processMessageType<T>(
     source: any,
     descriptor: MessageDescriptor<T>,
     output?: T
@@ -83,7 +83,11 @@ export class MessageAssembler {
     } else if (field.enumType) {
       return this.processEnumType(sourceField, field.enumType, outputField);
     } else if (field.messageType) {
-      return this.assemble(sourceField, field.messageType, outputField);
+      return this.processMessageType(
+        sourceField,
+        field.messageType,
+        outputField
+      );
     }
   }
 }

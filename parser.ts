@@ -23,7 +23,7 @@ export function popArrayUntilTargetLength(
   }
 }
 
-export function parsePrimitiveType(
+export function parsePrimitive(
   sourceField: any,
   primitiveType: PrimitiveType
 ): any {
@@ -51,10 +51,7 @@ export function parsePrimitiveType(
   }
 }
 
-export function parseEnumType(
-  source: any,
-  descriptor: EnumDescriptor<any>
-): any {
+export function parseEnum(source: any, descriptor: EnumDescriptor<any>): any {
   let enumValueFound: EnumValue;
   if (typeof source === "string") {
     enumValueFound = descriptor.values.find((enumValue): boolean => {
@@ -76,8 +73,8 @@ export let MESSAGE_PARSER = new MessageAssembler(
   checkArrayType,
   nullifyArray,
   popArrayUntilTargetLength,
-  parsePrimitiveType,
-  parseEnumType
+  parsePrimitive,
+  parseEnum
 );
 
 export function parseMessage<T>(
@@ -85,5 +82,5 @@ export function parseMessage<T>(
   descriptor: MessageDescriptor<T>,
   output?: T
 ): T {
-  return MESSAGE_PARSER.assemble(raw, descriptor, output);
+  return MESSAGE_PARSER.processMessageType(raw, descriptor, output);
 }

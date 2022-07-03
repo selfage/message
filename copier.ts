@@ -35,5 +35,5 @@ export function copyMessage<T>(
   descriptor: MessageDescriptor<T>,
   to?: T
 ): T {
-  return MESSAGE_COPIER.assemble(from, descriptor, to);
+  return MESSAGE_COPIER.processMessageType(from, descriptor, to);
 }
