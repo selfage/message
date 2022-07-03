@@ -6,15 +6,15 @@ import {
 } from "./descriptor";
 import { MessageAssembler } from "./assembler";
 
-function checkArrayType(sourceField: any): boolean {
+export function checkArrayType(sourceField: any): boolean {
   return Array.isArray(sourceField);
 }
 
-function nullifyArray(ret: any, fieldName: string): void {
+export function nullifyArray(ret: any, fieldName: string): void {
   ret[fieldName] = undefined;
 }
 
-function popArrayUntilTargetLength(
+export function popArrayUntilTargetLength(
   retArrayField: any,
   targetLength: number
 ): void {
@@ -23,7 +23,7 @@ function popArrayUntilTargetLength(
   }
 }
 
-function parsePrimitiveType(
+export function parsePrimitiveType(
   sourceField: any,
   primitiveType: PrimitiveType
 ): any {
@@ -51,7 +51,10 @@ function parsePrimitiveType(
   }
 }
 
-function parseEnumType(source: any, descriptor: EnumDescriptor<any>): any {
+export function parseEnumType(
+  source: any,
+  descriptor: EnumDescriptor<any>
+): any {
   let enumValueFound: EnumValue;
   if (typeof source === "string") {
     enumValueFound = descriptor.values.find((enumValue): boolean => {
@@ -69,7 +72,7 @@ function parseEnumType(source: any, descriptor: EnumDescriptor<any>): any {
   }
 }
 
-let MESSAGE_PARSER = new MessageAssembler(
+export let MESSAGE_PARSER = new MessageAssembler(
   checkArrayType,
   nullifyArray,
   popArrayUntilTargetLength,

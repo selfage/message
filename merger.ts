@@ -1,13 +1,13 @@
 import { MessageDescriptor } from "./descriptor";
 import { MessageAssembler } from "./assembler";
 
-function checkArrayNonNull(sourceField: any): boolean {
+export function checkArrayNonNull(sourceField: any): boolean {
   return Boolean(sourceField);
 }
 
-function noop(): void {}
+export function noop(): void {}
 
-function mergeField(sourceField: any, type: any, outputField: any): any {
+export function mergeField(sourceField: any, type: any, outputField: any): any {
   if (sourceField !== undefined) {
     return sourceField;
   } else {
@@ -15,7 +15,7 @@ function mergeField(sourceField: any, type: any, outputField: any): any {
   }
 }
 
-let MESSAGE_MERGER = new MessageAssembler(
+export let MESSAGE_MERGER = new MessageAssembler(
   checkArrayNonNull,
   noop,
   noop,
