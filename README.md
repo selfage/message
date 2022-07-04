@@ -12,9 +12,7 @@ The term "message" stands for data class, inspired from Google's Protocol Buffer
 
 TypeScript uses interfaces to describe objects at compiling time, checking for invalid references to object fields/properties. However, in cases such as casting `JSON.parse(...)` to a type-safe object, `JSON.parse(...) as MyData` doesn't really validate fields for you and thus you don't get a real type-safe object. With `parseMessage` and the generated `MessageDescriptor`, you could then get any object validated and type-casted.
 
-## Message
-
-### Generate MessageDescriptor
+## Generate MessageDescriptor
 
 Technically, you can generate a `MessageDescriptor` manually, or by using a generator of yours.
 
@@ -65,7 +63,7 @@ export let BASIC_DATA: MessageDescriptor<BasicData> = {
 
 It's recommended to commit `basic.ts` as a source file such that any code change on `@selfage/cli` will not break your program.
 
-### Parse messages at runtime
+## Parse messages at runtime
 
 With a `MessageDescriptor`, you can then parse an `any` object into a typed object by validating each field type, e.g., from a JSON-parsed object.
 
@@ -90,7 +88,7 @@ parseMessage(raw, BASIC_DATA, output);
 
 Note that if will overwrite everything in `output`, if it's not empty.
 
-### Generate EnumDescriptor
+## Generate EnumDescriptor
 
 TypeScript preserves enum information at runtime. Therefore, `EnumDescriptor` only exists for `MessageDescriptor` to reference.
 
