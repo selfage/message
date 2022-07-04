@@ -18,7 +18,7 @@ NODE_TEST_RUNNER.run({
             backgroundColor: 10,
             colorHistory: [11, 1, 3, 10, 12],
           },
-          creditCards: [{ cardNumber: 1010 }],
+          creditCards: [{ cardNumber: 1010 }, { cardNumber: 1212 }],
         };
         let source: NestedUser = {
           id: 25,
@@ -47,7 +47,7 @@ NODE_TEST_RUNNER.run({
               },
               creditCards: [
                 { cardNumber: 1010 },
-                undefined,
+                { cardNumber: 1212 },
                 {},
                 { cardNumber: 3030 },
               ],

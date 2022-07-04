@@ -1,6 +1,14 @@
 import { MessageDescriptor } from "./descriptor";
 import { MessageAssembler } from "./assembler";
 
+export function checkSourceNonNull(source: any): boolean {
+  return Boolean(source);
+}
+
+export function nullifyOutput(): any {
+  return undefined;
+}
+
 export function checkArrayNonNull(sourceField: any): boolean {
   return Boolean(sourceField);
 }
@@ -23,6 +31,8 @@ export function copyField(sourceField: any): any {
 }
 
 export let MESSAGE_COPIER = new MessageAssembler(
+  checkSourceNonNull,
+  nullifyOutput,
   checkArrayNonNull,
   nullifyArray,
   popArrayUntilTargetLength,

@@ -6,6 +6,14 @@ import {
 } from "./descriptor";
 import { MessageAssembler } from "./assembler";
 
+export function checkSourceNonNull(source: any): boolean {
+  return Boolean(source) && typeof source === "object";
+}
+
+export function nullifyOutput(): any {
+  return undefined;
+}
+
 export function checkArrayType(sourceField: any): boolean {
   return Array.isArray(sourceField);
 }
@@ -70,6 +78,8 @@ export function parseEnum(source: any, descriptor: EnumDescriptor<any>): any {
 }
 
 export let MESSAGE_PARSER = new MessageAssembler(
+  checkSourceNonNull,
+  nullifyOutput,
   checkArrayType,
   nullifyArray,
   popArrayUntilTargetLength,

@@ -7,6 +7,8 @@ import {
 
 export class MessageAssembler {
   public constructor(
+    private sourceCheckFn: (source: any) => boolean,
+    private sourceNullifyFn: (output?: any) => any,
     private arrayCheckFn: (sourceField: any) => boolean,
     private arrayResetFn: (ret: any, fieldName: string) => void,
     private arrayPopFn: (retArrayField: any, targetLength: number) => void,
@@ -27,8 +29,8 @@ export class MessageAssembler {
     descriptor: MessageDescriptor<T>,
     output?: T
   ): T {
-    if (!source || typeof source !== "object") {
-      return undefined;
+    if (!this.sourceCheckFn(source)) {
+      return this.sourceNullifyFn(output);
     }
 
     let ret: any = output;

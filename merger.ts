@@ -1,6 +1,14 @@
 import { MessageDescriptor } from "./descriptor";
 import { MessageAssembler } from "./assembler";
 
+export function checkSourceNonNull(source: any): boolean {
+  return Boolean(source);
+}
+
+export function acceptOutput(output?: any): any {
+  return output;
+}
+
 export function checkArrayNonNull(sourceField: any): boolean {
   return Boolean(sourceField);
 }
@@ -20,6 +28,8 @@ export function mergeField(
 }
 
 export let MESSAGE_MERGER = new MessageAssembler(
+  checkSourceNonNull,
+  acceptOutput,
   checkArrayNonNull,
   noop,
   noop,

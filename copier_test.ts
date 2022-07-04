@@ -40,7 +40,7 @@ NODE_TEST_RUNNER.run({
             backgroundColor: 10,
             preferredColor: 1,
           },
-          creditCards: [{ cardNumber: 3030 }],
+          creditCards: [{ cardNumber: 3030 }, { cardNumber: 1212 }],
         };
         let dest: NestedUser = {
           id: 25,
