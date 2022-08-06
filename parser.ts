@@ -1,10 +1,10 @@
+import { MessageAssembler } from "./assembler";
 import {
-  MessageDescriptor,
   EnumDescriptor,
   EnumValue,
+  MessageDescriptor,
   PrimitiveType,
 } from "./descriptor";
-import { MessageAssembler } from "./assembler";
 
 export function checkSourceNonNull(source: any): boolean {
   return Boolean(source) && typeof source === "object";

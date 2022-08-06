@@ -1,10 +1,10 @@
 import { MessageDescriptor, MessageField } from "./descriptor";
 import {
   MatchFn,
+  assert,
   assertThat,
   eq,
   eqArray,
-  assert,
 } from "@selfage/test_matcher";
 
 export function eqMessage<T>(

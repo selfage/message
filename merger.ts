@@ -1,5 +1,5 @@
-import { MessageDescriptor } from "./descriptor";
 import { MessageAssembler } from "./assembler";
+import { MessageDescriptor } from "./descriptor";
 
 export function checkSourceNonNull(source: any): boolean {
   return Boolean(source);

@@ -2,9 +2,9 @@ import { mergeMessage } from "./merger";
 import { NESTED_USER, NestedUser } from "./test_data/user";
 import { eqMessage } from "./test_matcher";
 import { assertThat, eq } from "@selfage/test_matcher";
-import { NODE_TEST_RUNNER } from "@selfage/test_runner";
+import { TEST_RUNNER } from "@selfage/test_runner";
 
-NODE_TEST_RUNNER.run({
+TEST_RUNNER.run({
   name: "MergerTest",
   cases: [
     {
