@@ -12,7 +12,7 @@ The term "message" stands for data class, inspired from Google's Protocol Buffer
 
 TypeScript uses interfaces to describe objects at compiling time, checking for invalid references to object fields/properties. However, in cases such as casting `JSON.parse(...)` to a type-safe object, `JSON.parse(...) as MyData` doesn't really validate fields for you and thus you don't get a real type-safe object. This runtime lib together with the generated message descriptor, can help validate and type-cast objects.
 
-See [@selfage/generate_cli#message](https://www.npmjs.com/package/@selfage/generate_cli#message) for how to generate `MessageDescriptor`. We will continue using the example generated.
+See [@selfage/generate_cli#message](https://github.com/selfage/generate_cli#message) for how to generate `MessageDescriptor`. We will continue using the example generated.
 
 ## Parse messages
 
