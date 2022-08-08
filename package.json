@@ -1,7 +1,7 @@
 {
   "name": "@selfage/message",
-  "version": "3.1.4",
-  "description": "Runtime lib for generated messages.",
+  "version": "3.1.5",
+  "description": "Runtime lib for generated messages to parse, copy and merge messages.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/selfage/message.git"
