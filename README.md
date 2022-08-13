@@ -12,7 +12,62 @@ The term "message" stands for data class, inspired from Google's Protocol Buffer
 
 TypeScript uses interfaces to describe objects at compiling time, checking for invalid references to object fields/properties. However, in cases such as casting `JSON.parse(...)` to a type-safe object, `JSON.parse(...) as MyData` doesn't really validate fields for you and thus you don't get a real type-safe object. This runtime lib together with the generated message descriptor, can help validate and type-cast objects.
 
-See [@selfage/generator_cli#message](https://github.com/selfage/generator_cli#message) for how to generate `MessageDescriptor`. We will continue using the example generated.
+## Example generated code
+
+See [@selfage/generator_cli#message](https://github.com/selfage/generator_cli#message) for how to generate `MessageDescriptor`. Suppose the following has been generated and committed as `basic.ts`. We will continue using the example below.
+
+```TypeScript
+import { EnumDescriptor, MessageDescriptor, PrimitiveType } from '@selfage/message/descriptor';
+
+export enum Color {
+  RED = 10,
+  GREEN = 2,
+  BLUE = 1,
+}
+
+export let COLOR: EnumDescriptor<Color> = {
+  name: 'Color',
+  values: [
+    {
+      name: 'RED',
+      value: 10,
+    },
+    {
+      name: 'GREEN',
+      value: 2,
+    },
+    {
+      name: 'BLUE',
+      value: 1,
+    },
+  ]
+}
+
+export interface BasicData {
+  numberField?: number,
+  stringArrayField?: Array<string>,
+  color?: Color,
+}
+
+export let BASIC_DATA: MessageDescriptor<BasicData> = {
+  name: 'BasicData',
+  fields: [
+    {
+      name: 'numberField',
+      primitiveType: PrimitiveType.NUMBER,
+    },
+    {
+      name: 'stringArrayField',
+      primitiveType: PrimitiveType.STRING,
+      isArray: true,
+    },
+    {
+      name: 'color',
+      enumType: COLOR,
+    },
+  ]
+};
+```
 
 ## Parse messages
 
