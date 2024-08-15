@@ -4,7 +4,7 @@ import {
   assert,
   assertThat,
   eq,
-  eqArray,
+  isArray,
 } from "@selfage/test_matcher";
 
 export function eqMessage<T>(
@@ -34,7 +34,7 @@ export function eqMessage<T>(
             eqElements.push(eqMessageField(element, fieldDescriptor));
           }
         }
-        fieldMatcher = eqArray(eqElements);
+        fieldMatcher = isArray(eqElements);
       }
       assertThat(
         actualAny[fieldDescriptor.name],

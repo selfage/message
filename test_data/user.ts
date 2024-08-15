@@ -15,32 +15,39 @@ export let USER: MessageDescriptor<User> = {
   fields: [
     {
       name: 'id',
+      index: 1,
       primitiveType: PrimitiveType.NUMBER,
     },
     {
       name: 'isPaid',
+      index: 2,
       primitiveType: PrimitiveType.BOOLEAN,
     },
     {
       name: 'nickname',
+      index: 3,
       primitiveType: PrimitiveType.STRING,
     },
     {
       name: 'email',
+      index: 4,
       primitiveType: PrimitiveType.STRING,
     },
     {
       name: 'idHistory',
+      index: 5,
       primitiveType: PrimitiveType.NUMBER,
       isArray: true
     },
     {
       name: 'isPaidHistory',
+      index: 6,
       primitiveType: PrimitiveType.BOOLEAN,
       isArray: true
     },
     {
       name: 'nicknameHistory',
+      index: 8,
       primitiveType: PrimitiveType.STRING,
       isArray: true
     },
@@ -83,18 +90,22 @@ export let USER_INFO: MessageDescriptor<UserInfo> = {
   fields: [
     {
       name: 'intro',
+      index: 1,
       primitiveType: PrimitiveType.STRING,
     },
     {
       name: 'backgroundColor',
+      index: 2,
       enumType: COLOR,
     },
     {
       name: 'preferredColor',
+      index: 3,
       enumType: COLOR,
     },
     {
       name: 'colorHistory',
+      index: 4,
       enumType: COLOR,
       isArray: true
     },
@@ -110,6 +121,7 @@ export let CREDIT_CARD: MessageDescriptor<CreditCard> = {
   fields: [
     {
       name: 'cardNumber',
+      index: 1,
       primitiveType: PrimitiveType.NUMBER,
     },
   ]
@@ -126,14 +138,17 @@ export let NESTED_USER: MessageDescriptor<NestedUser> = {
   fields: [
     {
       name: 'id',
+      index: 1,
       primitiveType: PrimitiveType.NUMBER,
     },
     {
       name: 'userInfo',
+      index: 2,
       messageType: USER_INFO,
     },
     {
       name: 'creditCards',
+      index: 3,
       messageType: CREDIT_CARD,
       isArray: true
     },
