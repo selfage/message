@@ -42,7 +42,7 @@ TEST_RUNNER.run({
           },
           creditCards: [{ cardNumber: 3030 }, { cardNumber: 1212 }],
         };
-        let dest: NestedUser = {
+        let dest: any = {
           id: 25,
           userInfo: {
             intro: "sss",
