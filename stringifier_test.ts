@@ -1,15 +1,14 @@
-import { deserializeMessage, serializeMessage } from "./serializer";
+import { destringifyMessage, stringifyMessage } from "./stringifier";
 import { Color, NESTED_USER, NestedUser, USER, User } from "./test_data/user";
 import { eqMessage } from "./test_matcher";
 import { assertThat, eq } from "@selfage/test_matcher";
 import { TEST_RUNNER } from "@selfage/test_runner";
-import { BSON } from "bson";
 
 TEST_RUNNER.run({
-  name: "SerializerTest",
+  name: "StringifierTest",
   cases: [
     {
-      name: "SerializeOneLayer",
+      name: "StringifyOneLayer",
       execute: () => {
         // Prepare
         let user: User = {
@@ -23,20 +22,20 @@ TEST_RUNNER.run({
         };
 
         // Execute
-        let res = serializeMessage(user, USER);
+        let res = stringifyMessage(user, USER);
 
         // Verify
         assertThat(
-          JSON.stringify(BSON.deserialize(res)),
+          res,
           eq(
-            `{"a":[[1,12],[2,true],[3,"jack"],[5,11],[5,20],[5,null],[5,855],[6,false],[6,true],[6,false],[8,"queen"],[8,"king"]]}`,
+            `{"1":12,"2":true,"3":"jack","5":[11,20,null,855],"6":[false,true,false],"8":["queen","king"]}`,
           ),
           "res",
         );
       },
     },
     {
-      name: "SerializeTwoLayers",
+      name: "StringifyTwoLayers",
       execute: () => {
         // Prepare
         let nestedUser: NestedUser = {
@@ -51,13 +50,13 @@ TEST_RUNNER.run({
         };
 
         // Execute
-        let res = serializeMessage(nestedUser, NESTED_USER);
+        let res = stringifyMessage(nestedUser, NESTED_USER);
 
         // Verify
         assertThat(
-          JSON.stringify(BSON.deserialize(res)),
+          res,
           eq(
-            `{"a":[[1,25],[2,[[1,"student"],[2,10],[3,1],[4,1],[4,2]]],[3,[[1,1010]]],[3,[]],[3,[[1,3030]]]]}`,
+            `{"1":25,"2":{"1":"student","2":10,"3":1,"4":[1,2]},"3":[{"1":1010},{},{"1":3030}]}`,
           ),
           "res",
         );
@@ -67,30 +66,10 @@ TEST_RUNNER.run({
       name: "DeserializeOneLayer",
       execute: () => {
         // Prepare
-        let raw = BSON.serialize({
-          a: [
-            [1, 12],
-            [2, true],
-            // Skips index 3
-            [4, "test@gmail.com"],
-            [5, 11],
-            [5, 20],
-            [5, "20"],
-            [5, {}],
-            [5, 855],
-            [6, false],
-            [6, true],
-            [6, false],
-            [6, false],
-            [7, 111111], // Not exists
-            [8, "queen"],
-            [8, "king"],
-            [8, "ace"],
-          ],
-        });
+        let raw = `{"1":12,"2":true,"4":"test@gmail.com","5":[11,20,"20",{},855],"6":[false,true,false,false],"7":1111,"8":["queen","king","ace"]}`;
 
         // Execute
-        let res = deserializeMessage(raw, USER);
+        let res = destringifyMessage(raw, USER);
 
         // Verify
         assertThat(
@@ -114,30 +93,10 @@ TEST_RUNNER.run({
       name: "DeserializeTwoLayers",
       execute: () => {
         // Prepare
-        let raw = BSON.serialize({
-          a: [
-            [1, 25],
-            [
-              2,
-              [
-                [1, "student"],
-                [2, "RED"],
-                [3, 1],
-                [4, true],
-                [4, "BLUE"],
-                [4, "GREEN"],
-                [4, 10],
-              ],
-            ],
-            [3, [[1, "1010"]]],
-            [3, 2020],
-            [3, []],
-            [3, [[1, 3030]]],
-          ],
-        });
+        let raw = `{"1":25,"2":{"1":"student","2":"RED","3":1,"4":[true,"BLUE","GREEN",10]},"3":[{"1":"1010"},2020,{},{"1":3030}]}`;
 
         // Execute
-        let res = deserializeMessage(raw, NESTED_USER);
+        let res = destringifyMessage(raw, NESTED_USER);
 
         // Verify
         assertThat(
@@ -160,7 +119,7 @@ TEST_RUNNER.run({
       },
     },
     {
-      name: "SerializeAndThenDeserialize",
+      name: "StringifyAndThenDeStringify",
       execute: () => {
         // Prepare
         let nestedUser: NestedUser = {
@@ -175,8 +134,8 @@ TEST_RUNNER.run({
         };
 
         // Execute
-        let res = deserializeMessage(
-          serializeMessage(nestedUser, NESTED_USER),
+        let res = destringifyMessage(
+          stringifyMessage(nestedUser, NESTED_USER),
           NESTED_USER,
         );
 
