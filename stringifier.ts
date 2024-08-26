@@ -9,9 +9,16 @@ import {
 export function toIndexed(
   message: any,
   descriptor: MessageDescriptor<any>,
-): Array<any> {
+): any {
+  if (!message) {
+    return undefined;
+  }
+
   let indexedMessage: any = {};
   for (let field of descriptor.fields) {
+    if (message[field.name] === undefined) {
+      continue;
+    }
     if (field.isArray) {
       let array: Array<any> = [];
       indexedMessage[field.index] = array;
@@ -23,9 +30,6 @@ export function toIndexed(
         }
       }
     } else {
-      if (message[field.name] === undefined) {
-        continue;
-      }
       if (field.messageType) {
         indexedMessage[field.index] = toIndexed(
           message[field.name],

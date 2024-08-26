@@ -17,8 +17,8 @@ TEST_RUNNER.run({
           nickname: "jack",
           email: undefined,
           idHistory: [11, 20, undefined, 855],
-          isPaidHistory: [false, true, false],
-          nicknameHistory: ["queen", "king"],
+          isPaidHistory: [true, undefined, false],
+          nicknameHistory: ["queen", undefined, "king"],
         };
 
         // Execute
@@ -28,7 +28,7 @@ TEST_RUNNER.run({
         assertThat(
           res,
           eq(
-            `{"1":12,"2":true,"3":"jack","5":[11,20,null,855],"6":[false,true,false],"8":["queen","king"]}`,
+            `{"1":12,"2":true,"3":"jack","5":[11,20,null,855],"6":[true,null,false],"8":["queen",null,"king"]}`,
           ),
           "res",
         );
@@ -44,9 +44,9 @@ TEST_RUNNER.run({
             intro: "student",
             backgroundColor: Color.RED,
             preferredColor: 1,
-            colorHistory: [Color.BLUE, Color.GREEN],
+            colorHistory: [Color.GREEN, undefined],
           },
-          creditCards: [{ cardNumber: 1010 }, {}, { cardNumber: 3030 }],
+          creditCards: [{ cardNumber: 1010 }, {}, undefined],
         };
 
         // Execute
@@ -56,7 +56,7 @@ TEST_RUNNER.run({
         assertThat(
           res,
           eq(
-            `{"1":25,"2":{"1":"student","2":10,"3":1,"4":[1,2]},"3":[{"1":1010},{},{"1":3030}]}`,
+            `{"1":25,"2":{"1":"student","2":10,"3":1,"4":[2,null]},"3":[{"1":1010},{},null]}`,
           ),
           "res",
         );
@@ -66,7 +66,7 @@ TEST_RUNNER.run({
       name: "DeserializeOneLayer",
       execute: () => {
         // Prepare
-        let raw = `{"1":12,"2":true,"4":"test@gmail.com","5":[11,20,"20",{},855],"6":[false,true,false,false],"7":1111,"8":["queen","king","ace"]}`;
+        let raw = `{"1":12,"2":true,"4":"test@gmail.com","5":[11,20,"20",{},855],"6":[true,null,false],"7":1111,"8":["queen",null,"king"]}`;
 
         // Execute
         let res = destringifyMessage(raw, USER);
@@ -80,8 +80,8 @@ TEST_RUNNER.run({
               isPaid: true,
               email: "test@gmail.com",
               idHistory: [11, 20, undefined, undefined, 855],
-              isPaidHistory: [false, true, false, false],
-              nicknameHistory: ["queen", "king", "ace"],
+              isPaidHistory: [true, undefined, false],
+              nicknameHistory: ["queen", undefined, "king"],
             },
             USER,
           ),
@@ -93,7 +93,7 @@ TEST_RUNNER.run({
       name: "DeserializeTwoLayers",
       execute: () => {
         // Prepare
-        let raw = `{"1":25,"2":{"1":"student","2":"RED","3":1,"4":[true,"BLUE","GREEN",10]},"3":[{"1":"1010"},2020,{},{"1":3030}]}`;
+        let raw = `{"1":25,"2":{"1":"student","2":"RED","3":1,"4":[true,"BLUE","GREEN",10]},"3":[{"1":"1010"},2020,{},{"1":3030},null]}`;
 
         // Execute
         let res = destringifyMessage(raw, NESTED_USER);
@@ -110,7 +110,7 @@ TEST_RUNNER.run({
                 preferredColor: 1,
                 colorHistory: [undefined, 1, 2, 10],
               },
-              creditCards: [{}, undefined, {}, { cardNumber: 3030 }],
+              creditCards: [{}, undefined, {}, { cardNumber: 3030 }, undefined],
             },
             NESTED_USER,
           ),
@@ -128,9 +128,9 @@ TEST_RUNNER.run({
             intro: "student",
             backgroundColor: Color.RED,
             preferredColor: 1,
-            colorHistory: [Color.BLUE, Color.GREEN],
+            colorHistory: [Color.BLUE, undefined],
           },
-          creditCards: [{ cardNumber: 1010 }, {}, { cardNumber: 3030 }],
+          creditCards: [{ cardNumber: 1010 }, {}, undefined],
         };
 
         // Execute

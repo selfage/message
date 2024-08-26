@@ -24,12 +24,14 @@
     "**/*.d.ts",
     "**/*.js",
     "!test_data/**",
-    "!**/*_test.*"
+    "!**/*_test.*",
+    "!**/*_benchmark.*"
   ],
   "devDependencies": {
     "@selfage/cli": "^5.0.0",
     "@selfage/test_runner": "^5.0.1",
     "@selfage/tsconfig": "^1.0.7",
+    "bson": "^6.8.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
