@@ -1,96 +1,83 @@
-import { MessageAssembler } from "./assembler";
 import {
-  EnumDescriptor,
   EnumValue,
   MessageDescriptor,
+  MessageField,
   PrimitiveType,
 } from "./descriptor";
 
-export function checkSourceNonNull(source: any): boolean {
-  return Boolean(source) && typeof source === "object";
-}
-
-export function nullifyOutput(): any {
-  return undefined;
-}
-
-export function checkArrayType(sourceField: any): boolean {
-  return Array.isArray(sourceField);
-}
-
-export function nullifyArray(ret: any, fieldName: string): void {
-  ret[fieldName] = undefined;
-}
-
-export function popArrayUntilTargetLength(
-  retArrayField: any,
-  targetLength: number
-): void {
-  for (let i = retArrayField.length; i > targetLength; i--) {
-    retArrayField.pop();
-  }
-}
-
-export function parsePrimitive(
-  sourceField: any,
-  primitiveType: PrimitiveType
-): any {
-  switch (primitiveType) {
-    case PrimitiveType.NUMBER:
-      if (typeof sourceField === "number") {
-        return sourceField;
-      } else {
+export function parseField(sourceField: any, field: MessageField): any {
+  if (field.primitiveType) {
+    switch (field.primitiveType) {
+      case PrimitiveType.NUMBER:
+        if (typeof sourceField === "number") {
+          return sourceField;
+        } else {
+          return undefined;
+        }
+      case PrimitiveType.BOOLEAN:
+        if (typeof sourceField === "boolean") {
+          return sourceField;
+        } else {
+          return undefined;
+        }
+      case PrimitiveType.STRING:
+        if (typeof sourceField === "string") {
+          return sourceField;
+        } else {
+          return undefined;
+        }
+      default:
         return undefined;
-      }
-    case PrimitiveType.BOOLEAN:
-      if (typeof sourceField === "boolean") {
-        return sourceField;
-      } else {
-        return undefined;
-      }
-    case PrimitiveType.STRING:
-      if (typeof sourceField === "string") {
-        return sourceField;
-      } else {
-        return undefined;
-      }
-    default:
+    }
+  } else if (field.enumType) {
+    let enumValueFound: EnumValue;
+    if (typeof sourceField === "string") {
+      enumValueFound = field.enumType.values.find((enumValue): boolean => {
+        return enumValue.name === sourceField;
+      });
+    } else if (typeof sourceField === "number") {
+      enumValueFound = field.enumType.values.find((enumValue): boolean => {
+        return enumValue.value === sourceField;
+      });
+    }
+    if (enumValueFound === undefined) {
       return undefined;
-  }
-}
-
-export function parseEnum(source: any, descriptor: EnumDescriptor<any>): any {
-  let enumValueFound: EnumValue;
-  if (typeof source === "string") {
-    enumValueFound = descriptor.values.find((enumValue): boolean => {
-      return enumValue.name === source;
-    });
-  } else if (typeof source === "number") {
-    enumValueFound = descriptor.values.find((enumValue): boolean => {
-      return enumValue.value === source;
-    });
-  }
-  if (enumValueFound === undefined) {
-    return undefined;
+    } else {
+      return enumValueFound.value;
+    }
   } else {
-    return enumValueFound.value;
+    // message type
+    return parseMessageType(sourceField, field.messageType);
   }
 }
 
-export let MESSAGE_PARSER = new MessageAssembler(
-  checkSourceNonNull,
-  nullifyOutput,
-  checkArrayType,
-  nullifyArray,
-  popArrayUntilTargetLength,
-  parsePrimitive,
-  parseEnum
-);
-
-export function parseMessage<T>(
+export function parseMessageType<T>(
   raw: any,
   descriptor: MessageDescriptor<T>,
-  output?: T
 ): T {
-  return MESSAGE_PARSER.processMessageType(raw, descriptor, output);
+  if (!raw || typeof raw !== "object") {
+    return undefined;
+  }
+
+  let ret: any = {};
+  for (let field of descriptor.fields) {
+    if (raw[field.name] === undefined) {
+      continue;
+    }
+    if (!field.isArray) {
+      ret[field.name] = parseField(raw[field.name], field);
+    } else if (Array.isArray(raw[field.name])) {
+      let retArrayField: any = [];
+      ret[field.name] = retArrayField;
+      let sourceArrayField = raw[field.name];
+      for (let element of sourceArrayField) {
+        retArrayField.push(parseField(element, field));
+      }
+    }
+  }
+  return ret;
+}
+
+export function parseMessage<T>(raw: any, descriptor: MessageDescriptor<T>): T {
+  return parseMessageType(raw, descriptor);
 }

@@ -1,49 +1,66 @@
-import { MessageAssembler } from "./assembler";
-import { MessageDescriptor } from "./descriptor";
+import { MessageDescriptor, MessageField } from "./descriptor";
 
-export function checkSourceNonNull(source: any): boolean {
-  return Boolean(source);
-}
-
-export function nullifyOutput(): any {
-  return undefined;
-}
-
-export function checkArrayNonNull(sourceField: any): boolean {
-  return Boolean(sourceField);
-}
-
-export function nullifyArray(ret: any, fieldName: string): void {
-  ret[fieldName] = undefined;
-}
-
-export function popArrayUntilTargetLength(
-  retArrayField: any,
-  targetLength: number
-): void {
-  for (let i = retArrayField.length; i > targetLength; i--) {
-    retArrayField.pop();
+export function copyField(from: any, field: MessageField, output?: any): any {
+  if (field.primitiveType) {
+    return from;
+  } else if (field.enumType) {
+    return from;
+  } else {
+    // message type
+    return copyMessageType(from, field.messageType, output);
   }
 }
 
-export function copyField(sourceField: any): any {
-  return sourceField;
-}
+export function copyMessageType<T>(
+  from: any,
+  descriptor: MessageDescriptor<T>,
+  output?: T,
+): T {
+  if (!from) {
+    return undefined;
+  }
 
-export let MESSAGE_COPIER = new MessageAssembler(
-  checkSourceNonNull,
-  nullifyOutput,
-  checkArrayNonNull,
-  nullifyArray,
-  popArrayUntilTargetLength,
-  copyField,
-  copyField
-);
+  let ret: any = output;
+  if (!ret) {
+    ret = {};
+  }
+  for (let field of descriptor.fields) {
+    if (from[field.name] === undefined) {
+      ret[field.name] = undefined;
+      continue;
+    }
+
+    if (!field.isArray) {
+      ret[field.name] = copyField(from[field.name], field, ret[field.name]);
+    } else {
+      if (!ret[field.name]) {
+        ret[field.name] = [];
+      }
+      let fromArrayField = from[field.name];
+      let retArrayField = ret[field.name];
+      for (let i = 0; i < fromArrayField.length; i++) {
+        if (i < retArrayField.length) {
+          retArrayField[i] = copyField(
+            fromArrayField[i],
+            field,
+            retArrayField[i],
+          );
+        } else {
+          retArrayField.push(copyField(fromArrayField[i], field));
+        }
+      }
+      while (retArrayField.length > fromArrayField.length) {
+        retArrayField.pop();
+      }
+    }
+  }
+  return ret;
+}
 
 export function copyMessage<T>(
   from: T,
   descriptor: MessageDescriptor<T>,
-  to?: T
+  to?: T,
 ): T {
-  return MESSAGE_COPIER.processMessageType(from, descriptor, to);
+  return copyMessageType(from, descriptor, to);
 }
