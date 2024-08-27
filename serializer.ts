@@ -31,12 +31,6 @@ export function initBuffer(maxBytes = 1024 * 1024 * 16): void {
 
 initBuffer();
 
-export function isLittleEndian(): boolean {
-  let uint32 = new Uint32Array([1]);
-  let uint8s = new Uint8Array(uint32.buffer);
-  return uint8s[0] === 1;
-}
-
 export function toBufferFromValue(
   value: any,
   field: MessageField,
@@ -187,7 +181,11 @@ export function toValueFromBinary(
           value = undefined;
         } else {
           value = TEXT_DECODER.decode(
-            new Uint8Array(dataView.buffer, byteOffset, stringByteLength),
+            new Uint8Array(
+              dataView.buffer,
+              dataView.byteOffset + byteOffset,
+              stringByteLength,
+            ),
           );
           byteOffset += stringByteLength;
         }
@@ -267,6 +265,9 @@ export function deserializeMessage<T>(
   binary: Uint8Array,
   descriptor: MessageDescriptor<T>,
 ): T {
-  return toMessageFromBinary(new DataView(binary.buffer), 0, descriptor)
-    .message;
+  return toMessageFromBinary(
+    new DataView(binary.buffer, binary.byteOffset, binary.byteLength),
+    0,
+    descriptor,
+  ).message;
 }

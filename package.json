@@ -1,7 +1,7 @@
 {
   "name": "@selfage/message",
-  "version": "3.3.0",
-  "description": "Runtime lib for generated messages to parse, copy and merge messages.",
+  "version": "3.4.0",
+  "description": "Runtime lib for generated messages to parse, copy, serialize and deserialize messages.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/selfage/message.git"
@@ -11,6 +11,9 @@
     "Protobuf",
     "Descriptor",
     "Generator",
+    "Serialize",
+    "Serialization",
+    "Binary",
     "Metaprogramming",
     "TypeScript"
   ],
@@ -20,6 +23,9 @@
     "url": "https://github.com/selfage/message/issues"
   },
   "homepage": "https://github.com/selfage/message#readme",
+  "bin": {
+    "message": "./main.js"
+  },
   "files": [
     "**/*.d.ts",
     "**/*.js",
@@ -31,10 +37,12 @@
     "@selfage/cli": "^5.0.0",
     "@selfage/test_runner": "^5.0.1",
     "@selfage/tsconfig": "^1.0.7",
+    "@types/node": "^22.5.0",
     "bson": "^6.8.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@selfage/test_matcher": "^2.0.0"
+    "@selfage/test_matcher": "^2.0.0",
+    "commander": "^12.1.0"
   }
 }

@@ -194,6 +194,38 @@ TEST_RUNNER.run({
       },
     },
     {
+      name: "DeserializeWithReusedBuffer",
+      execute: () => {
+        // Prepare
+        let binary = concatArrayBuffer([
+          new ArrayBuffer(10), // Padding
+          new Uint32Array([2]).buffer, // 2 fields
+          new Uint32Array([1]).buffer, // index 1
+          new Float64Array([12]).buffer, // value 12
+          new Uint32Array([3]).buffer, // index 3
+          new Uint32Array([4]).buffer, // string byte length 4
+          new Uint8Array([106, 97, 99, 107]).buffer, // UTF-8 encoding of "jack"
+          new ArrayBuffer(10), // Padding
+        ]);
+
+        // Execute
+        let res = deserializeMessage(binary.subarray(10, 38), USER);
+
+        // Verify
+        assertThat(
+          res,
+          eqMessage(
+            {
+              id: 12,
+              nickname: "jack",
+            },
+            USER,
+          ),
+          "deserialized",
+        );
+      },
+    },
+    {
       name: "DeserializeExceedsBoundary",
       execute: () => {
         // Prepare
