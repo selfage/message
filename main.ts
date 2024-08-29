@@ -4,6 +4,10 @@ import path = require("path");
 import { deserializeMessage, serializeMessage } from "./serializer";
 import { Command } from "commander";
 
+function getImportFilePath(file: string): string {
+  return `./${path.posix.relative(__dirname, path.posix.join(process.cwd(), file))}`;
+}
+
 async function serialize(
   jsonString: string,
   encoding: "hex" | "base64",
@@ -11,7 +15,7 @@ async function serialize(
   name: string,
 ): Promise<void> {
   let message = JSON.parse(jsonString);
-  let importedFile = await import(file);
+  let importedFile = await import(getImportFilePath(file));
   let binary = serializeMessage(message, importedFile[name]);
   console.log(Buffer.from(binary).toString(encoding));
 }
@@ -23,15 +27,8 @@ async function deserialize(
   name: string,
 ): Promise<void> {
   let binary = Buffer.from(encodedString, encoding);
-  let importedFile = await import(file);
-  console.log(
-    JSON.stringify(
-      deserializeMessage(
-        binary,
-        importedFile[name],
-      ),
-    ),
-  );
+  let importedFile = await import(getImportFilePath(file));
+  console.log(JSON.stringify(deserializeMessage(binary, importedFile[name])));
 }
 
 async function main(): Promise<void> {
@@ -54,7 +51,7 @@ async function main(): Promise<void> {
     )
     .requiredOption(
       "-d, --descriptor-file <file>",
-      `The JS file that contains the target message's descriptor.`,
+      `The JS/TS file that contains the target message's descriptor, excluding .js/.ts suffix.`,
     )
     .requiredOption(
       "-n, --descriptor-name <name>",
@@ -80,7 +77,7 @@ async function main(): Promise<void> {
     )
     .requiredOption(
       "-d, --descriptor-file <file>",
-      `The JS file that contains the target message's descriptor.`,
+      `The JS/TS file that contains the target message's descriptor, excluding .js/.ts suffix.`,
     )
     .requiredOption(
       "-n, --descriptor-name <name>",

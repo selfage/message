@@ -1,6 +1,6 @@
 {
   "name": "@selfage/message",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "Runtime lib for generated messages to parse, copy, serialize and deserialize messages.",
   "repository": {
     "type": "git",
