@@ -16,7 +16,7 @@ export enum PrimitiveType {
 
 export interface MessageField {
   name: string;
-  index?: number;
+  index: number;
   primitiveType?: PrimitiveType;
   enumType?: EnumDescriptor<any>;
   messageType?: MessageDescriptor<any>;
