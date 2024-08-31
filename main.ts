@@ -4,8 +4,12 @@ import path = require("path");
 import { deserializeMessage, serializeMessage } from "./serializer";
 import { Command } from "commander";
 
+function toUnixPath(originalPath: string): string {
+  return originalPath.split(path.sep).join(path.posix.sep);
+}
+
 function getImportFilePath(file: string): string {
-  return `./${path.posix.relative(__dirname, path.posix.join(process.cwd(), file))}`;
+  return `./${path.posix.relative(toUnixPath(__dirname), path.posix.join(toUnixPath(process.cwd()), toUnixPath(file)))}`;
 }
 
 async function serialize(
