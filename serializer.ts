@@ -20,7 +20,7 @@ import {
 //
 // Maximum byte size by default is 16MB, but can be changed globally using `initBuffer(maxBytes: number)`.
 
-let RESERVED_LENGTH_VALUE_FOR_UNDEFINED = 4294967295;
+let UINT32_VALUE_FOR_UNDEFINED = 4294967295;
 let BOOLEAN_VALUE_FOR_UNDEFINED = 2;
 let RESERVED_UINT8_ARRAY: Uint8Array;
 let DATA_VIEW_OF_RESERVED_ARRAY: DataView;
@@ -61,11 +61,7 @@ export function toBufferFromValue(
         break;
       case PrimitiveType.STRING:
         if (value == null) {
-          dataView.setUint32(
-            byteOffset,
-            RESERVED_LENGTH_VALUE_FOR_UNDEFINED,
-            true,
-          );
+          dataView.setUint32(byteOffset, UINT32_VALUE_FOR_UNDEFINED, true);
           byteOffset += 4;
         } else {
           let res = TEXT_ENCODER.encodeInto(
@@ -78,7 +74,11 @@ export function toBufferFromValue(
         break;
     }
   } else if (field.enumType) {
-    dataView.setUint32(byteOffset, value, true);
+    if (value == null) {
+      dataView.setUint32(byteOffset, 0, true);
+    } else {
+      dataView.setUint32(byteOffset, value, true);
+    }
     byteOffset += 4;
   } else {
     // message type
@@ -101,7 +101,7 @@ export function toBufferFromMessage(
   byteOffset: number,
 ): number {
   if (!message) {
-    dataView.setUint32(byteOffset, RESERVED_LENGTH_VALUE_FOR_UNDEFINED, true);
+    dataView.setUint32(byteOffset, UINT32_VALUE_FOR_UNDEFINED, true);
     return byteOffset + 4;
   }
 
@@ -198,7 +198,7 @@ export function toValueFromBinary(
       case PrimitiveType.STRING:
         let stringByteLength = dataView.getUint32(byteOffset, true);
         byteOffset += 4;
-        if (stringByteLength === RESERVED_LENGTH_VALUE_FOR_UNDEFINED) {
+        if (stringByteLength === UINT32_VALUE_FOR_UNDEFINED) {
           value = undefined;
         } else {
           value = TEXT_DECODER.decode(
@@ -236,7 +236,7 @@ export function toMessageFromBinary<T>(
 ): { message?: T; byteOffset: number } {
   let numOfFields = dataView.getUint32(byteOffset, true);
   byteOffset += 4;
-  if (numOfFields === RESERVED_LENGTH_VALUE_FOR_UNDEFINED) {
+  if (numOfFields === UINT32_VALUE_FOR_UNDEFINED) {
     return {
       byteOffset,
     };
