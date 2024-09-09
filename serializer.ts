@@ -158,8 +158,8 @@ export function serializeMessage<T>(
 }
 
 export function toEnumFromNumber(
-  enumType: EnumDescriptor<any>,
   sourceValue: number,
+  enumType: EnumDescriptor<any>,
 ): number {
   let found = enumType.values.find((enumValue): boolean => {
     return enumValue.value === sourceValue;
@@ -215,7 +215,7 @@ export function toValueFromBinary(
   } else if (field.enumType) {
     let enumSourceValue = dataView.getUint32(byteOffset, true);
     byteOffset += 4;
-    value = toEnumFromNumber(field.enumType, enumSourceValue);
+    value = toEnumFromNumber(enumSourceValue, field.enumType);
   } else {
     // message type
     let messageAndByteOffset = toMessageFromBinary(
