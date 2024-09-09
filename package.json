@@ -36,13 +36,13 @@
   "devDependencies": {
     "@selfage/cli": "^5.0.0",
     "@selfage/test_runner": "^5.0.1",
-    "@selfage/tsconfig": "^1.0.7",
+    "@selfage/tsconfig": "^1.1.0",
     "@types/node": "^22.5.0",
     "bson": "^6.8.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@selfage/test_matcher": "^2.0.0",
+    "@selfage/test_matcher": "^2.1.6",
     "commander": "^12.1.0"
   }
 }

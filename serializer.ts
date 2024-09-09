@@ -1,4 +1,9 @@
-import { MessageDescriptor, MessageField, PrimitiveType } from "./descriptor";
+import {
+  EnumDescriptor,
+  MessageDescriptor,
+  MessageField,
+  PrimitiveType,
+} from "./descriptor";
 
 // Binary format example.
 // From {1: 1, 2: true, 3: {}, 4: {1: 1}, 5: "a", 6: [1]}
@@ -9,11 +14,9 @@ import { MessageDescriptor, MessageField, PrimitiveType } from "./descriptor";
 //   2. Number of fields, and string byte length must be < 2^32 - 1 (NOTE!).
 //   3. Field index and enum value must be > 0.
 //
-// Handling `undefined`:
-//   1. If a field is undefined, it's ignored when serialized.
-//   2. If an element of an array is undefined, it will be kept as undefined in the array.
-//
-// DO NOT USE `null` anywhere. Its behavior is undefined.
+// Handling `undefined` and `null`:
+//   1. If a field is undefined/null, it's ignored when serialized.
+//   2. If an element of an array is undefined/null, it will be kept as undefined in the array.
 //
 // Maximum byte size by default is 16MB, but can be changed globally using `initBuffer(maxBytes: number)`.
 
@@ -41,11 +44,15 @@ export function toBufferFromValue(
   if (field.primitiveType) {
     switch (field.primitiveType) {
       case PrimitiveType.NUMBER:
-        dataView.setFloat64(byteOffset, value, true);
+        if (value == null) {
+          dataView.setFloat64(byteOffset, NaN, true);
+        } else {
+          dataView.setFloat64(byteOffset, value, true);
+        }
         byteOffset += 8;
         break;
       case PrimitiveType.BOOLEAN:
-        if (value === undefined) {
+        if (value == null) {
           dataView.setUint8(byteOffset, BOOLEAN_VALUE_FOR_UNDEFINED);
         } else {
           dataView.setUint8(byteOffset, value);
@@ -53,7 +60,7 @@ export function toBufferFromValue(
         byteOffset += 1;
         break;
       case PrimitiveType.STRING:
-        if (value === undefined) {
+        if (value == null) {
           dataView.setUint32(
             byteOffset,
             RESERVED_LENGTH_VALUE_FOR_UNDEFINED,
@@ -102,7 +109,7 @@ export function toBufferFromMessage(
   let byteOffsetForNumOfFields = byteOffset;
   byteOffset += 4;
   for (let field of descriptor.fields) {
-    if (message[field.name] === undefined) {
+    if (message[field.name] == null) {
       continue;
     }
     numOfFields += 1;
@@ -150,6 +157,20 @@ export function serializeMessage<T>(
   return RESERVED_UINT8_ARRAY.slice(0, byteOffset);
 }
 
+export function toEnumFromNumber(
+  enumType: EnumDescriptor<any>,
+  sourceValue: number,
+): number {
+  let found = enumType.values.find((enumValue): boolean => {
+    return enumValue.value === sourceValue;
+  });
+  if (found === undefined) {
+    return undefined;
+  } else {
+    return sourceValue;
+  }
+}
+
 export function toValueFromBinary(
   dataView: DataView,
   byteOffset: number,
@@ -194,14 +215,7 @@ export function toValueFromBinary(
   } else if (field.enumType) {
     let enumSourceValue = dataView.getUint32(byteOffset, true);
     byteOffset += 4;
-    let enumValueFound = field.enumType.values.find((enumValue): boolean => {
-      return enumValue.value === enumSourceValue;
-    });
-    if (enumValueFound === undefined) {
-      value = undefined;
-    } else {
-      value = enumSourceValue;
-    }
+    value = toEnumFromNumber(field.enumType, enumSourceValue);
   } else {
     // message type
     let messageAndByteOffset = toMessageFromBinary(

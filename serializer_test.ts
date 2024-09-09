@@ -45,8 +45,8 @@ TEST_RUNNER.run({
           id: 12,
           isPaid: true,
           nickname: "jack",
-          email: undefined,
-          idHistory: [11, 20, undefined, 855],
+          email: null,
+          idHistory: [11, 20, null, 855],
           isPaidHistory: [true, undefined, false],
           nicknameHistory: ["queen", undefined, "king"],
         };
@@ -93,7 +93,7 @@ TEST_RUNNER.run({
             preferredColor: 1,
             colorHistory: [Color.GREEN, undefined],
           },
-          creditCards: [{ cardNumber: 1010 }, {}, undefined],
+          creditCards: [{ cardNumber: 1010 }, {}, null],
         };
 
         // Execute
