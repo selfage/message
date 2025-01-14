@@ -63,7 +63,7 @@ TEST_RUNNER.run({
       },
     },
     {
-      name: "DeserializeOneLayer",
+      name: "DestringifyOneLayer",
       execute: () => {
         // Prepare
         let raw = `{"1":12,"2":true,"4":"test@gmail.com","5":[11,20,"20",{},855],"6":[true,null,false],"7":1111,"8":["queen",null,"king"]}`;
@@ -90,10 +90,10 @@ TEST_RUNNER.run({
       },
     },
     {
-      name: "DeserializeTwoLayers",
+      name: "DestringifyTwoLayers",
       execute: () => {
         // Prepare
-        let raw = `{"1":25,"2":{"1":"student","2":"RED","3":1,"4":[true,"BLUE","GREEN",10]},"3":[{"1":"1010"},2020,{},{"1":3030},null]}`;
+        let raw = `{"1":25,"2":{"1":"student","2":10,"3":1,"4":[true,"BLUE",2]},"3":[{"1":"1010"},2020,{},{"1":3030},null]}`;
 
         // Execute
         let res = destringifyMessage(raw, NESTED_USER);
@@ -108,7 +108,7 @@ TEST_RUNNER.run({
                 intro: "student",
                 backgroundColor: 10,
                 preferredColor: 1,
-                colorHistory: [undefined, 1, 2, 10],
+                colorHistory: [undefined, undefined, Color.GREEN],
               },
               creditCards: [{}, undefined, {}, { cardNumber: 3030 }, undefined],
             },

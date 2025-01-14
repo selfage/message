@@ -1,10 +1,4 @@
-import {
-  EnumDescriptor,
-  EnumValue,
-  MessageDescriptor,
-  MessageField,
-  PrimitiveType,
-} from "./descriptor";
+import { MessageDescriptor, MessageField, PrimitiveType } from "./descriptor";
 
 export function toIndexed(
   message: any,
@@ -50,24 +44,6 @@ export function stringifyMessage<T>(
   return JSON.stringify(toIndexed(message, descriptor));
 }
 
-export function parseEnum(source: any, descriptor: EnumDescriptor<any>): any {
-  let enumValueFound: EnumValue;
-  if (typeof source === "string") {
-    enumValueFound = descriptor.values.find((enumValue): boolean => {
-      return enumValue.name === source;
-    });
-  } else if (typeof source === "number") {
-    enumValueFound = descriptor.values.find((enumValue): boolean => {
-      return enumValue.value === source;
-    });
-  }
-  if (enumValueFound === undefined) {
-    return undefined;
-  } else {
-    return enumValueFound.value;
-  }
-}
-
 export function parseField(rawField: any, field: MessageField): any {
   if (field.primitiveType) {
     if (field.primitiveType === PrimitiveType.NUMBER) {
@@ -90,7 +66,14 @@ export function parseField(rawField: any, field: MessageField): any {
       }
     }
   } else if (field.enumType) {
-    return parseEnum(rawField, field.enumType);
+    if (typeof rawField === "number") {
+      let enumValueFound = field.enumType.values.find((enumValue): boolean => {
+        return enumValue.value === rawField;
+      });
+      return enumValueFound ? enumValueFound.value : undefined;
+    } else {
+      return undefined;
+    }
   } else if (field.messageType) {
     return fromIndexed(rawField, field.messageType);
   }

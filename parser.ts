@@ -1,9 +1,24 @@
 import {
+  EnumDescriptor,
   EnumValue,
   MessageDescriptor,
   MessageField,
   PrimitiveType,
 } from "./descriptor";
+
+export function parseEnum(source: any, descriptor: EnumDescriptor<any>): any {
+  let enumValueFound: EnumValue;
+  if (typeof source === "string") {
+    enumValueFound = descriptor.values.find((enumValue): boolean => {
+      return enumValue.name === source;
+    });
+  } else if (typeof source === "number") {
+    enumValueFound = descriptor.values.find((enumValue): boolean => {
+      return enumValue.value === source;
+    });
+  }
+  return enumValueFound ? enumValueFound.value : undefined;
+}
 
 export function parseField(sourceField: any, field: MessageField): any {
   if (field.primitiveType) {
@@ -30,31 +45,14 @@ export function parseField(sourceField: any, field: MessageField): any {
         return undefined;
     }
   } else if (field.enumType) {
-    let enumValueFound: EnumValue;
-    if (typeof sourceField === "string") {
-      enumValueFound = field.enumType.values.find((enumValue): boolean => {
-        return enumValue.name === sourceField;
-      });
-    } else if (typeof sourceField === "number") {
-      enumValueFound = field.enumType.values.find((enumValue): boolean => {
-        return enumValue.value === sourceField;
-      });
-    }
-    if (enumValueFound === undefined) {
-      return undefined;
-    } else {
-      return enumValueFound.value;
-    }
+    return parseEnum(sourceField, field.enumType);
   } else {
     // message type
-    return parseMessageType(sourceField, field.messageType);
+    return parseMessage(sourceField, field.messageType);
   }
 }
 
-export function parseMessageType<T>(
-  raw: any,
-  descriptor: MessageDescriptor<T>,
-): T {
+export function parseMessage<T>(raw: any, descriptor: MessageDescriptor<T>): T {
   if (!raw || typeof raw !== "object") {
     return undefined;
   }
@@ -76,8 +74,4 @@ export function parseMessageType<T>(
     }
   }
   return ret;
-}
-
-export function parseMessage<T>(raw: any, descriptor: MessageDescriptor<T>): T {
-  return parseMessageType(raw, descriptor);
 }
