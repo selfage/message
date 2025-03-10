@@ -107,8 +107,11 @@ export function fromIndexed(
 }
 
 export function destringifyMessage<T>(
-  raw: string,
+  raw: string | undefined | null,
   descriptor: MessageDescriptor<T>,
 ): T {
+  if (!raw) {
+    return undefined;
+  }
   return fromIndexed(JSON.parse(raw), descriptor);
 }

@@ -249,5 +249,16 @@ TEST_RUNNER.run({
         );
       },
     },
+    {
+      name: "DeserializeNull",
+      execute: () => {
+        // Prepare
+        // Execute
+        let res = deserializeMessage(null, USER);
+
+        // Verify
+        assertThat(res, eq(undefined), "deserialized");
+      },
+    },
   ],
 });

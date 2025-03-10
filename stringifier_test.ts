@@ -143,5 +143,15 @@ TEST_RUNNER.run({
         assertThat(res, eqMessage(nestedUser, NESTED_USER), "res");
       },
     },
+    {
+      name: "DestringyNull",
+      execute: () => {
+        // Execute
+        let res = destringifyMessage(null, USER);
+
+        // Verify
+        assertThat(res, eq(undefined), "res");
+      },
+    },
   ],
 });

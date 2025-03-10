@@ -276,9 +276,12 @@ export function toMessageFromBinary<T>(
 }
 
 export function deserializeMessage<T>(
-  binary: Uint8Array,
+  binary: Uint8Array | undefined | null,
   descriptor: MessageDescriptor<T>,
 ): T {
+  if (!binary) {
+    return undefined;
+  }
   return toMessageFromBinary(
     new DataView(binary.buffer, binary.byteOffset, binary.byteLength),
     0,
