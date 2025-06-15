@@ -252,7 +252,6 @@ TEST_RUNNER.run({
     {
       name: "DeserializeNull",
       execute: () => {
-        // Prepare
         // Execute
         let res = deserializeMessage(null, USER);
 
