@@ -244,11 +244,10 @@ export function toMessageFromBinary<T>(
 
   let message: any = {};
   let i = 0;
-  console.log("Debug:", JSON.stringify(descriptor));
   for (let j = 0; j < numOfFields; j++) {
     let index = dataView.getUint32(byteOffset, true);
     byteOffset += 4;
-    while (descriptor.fields[i].index < index) {
+    while (i < descriptor.fields.length && descriptor.fields[i].index < index) {
       i++;
     }
     if (index !== descriptor.fields[i].index) {
