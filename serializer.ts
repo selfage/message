@@ -13,6 +13,7 @@ import {
 //   1. Index, enum value, and array length must be < 2^32.
 //   2. Number of fields, and string byte length must be < 2^32 - 1 (NOTE!).
 //   3. Field index and enum value must be > 0.
+//   4. Field index in a message must in ascending order.
 //
 // Handling `undefined` and `null`:
 //   1. If a field is undefined/null, it's ignored when serialized.
